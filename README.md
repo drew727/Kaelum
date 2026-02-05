@@ -1,2 +1,2 @@
 # Kaelum
-An adaptive ai that mimics human conversation. 
+An adaptive AI that mimics human conversation. 
