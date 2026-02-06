@@ -6,9 +6,9 @@ import numpy as np
 from openai import OpenAI
 client = OpenAI(
   base_url="https://api.groq.com/openai/v1",
-  api_key="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",
+  api_key=os.environ['LLMKEY'],
 )
-''' placeholder using duckduck go, will be replaced with logic using google api
+''' placeholder search using duckduck go, will be replaced with logic using google api
 def search_the_web(query):
     session = requests.Session()
     url = "https://lite.duckduckgo.com"
