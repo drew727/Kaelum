@@ -33,4 +33,4 @@ class Client(commands.Bot):
 
 if __name__ == '__main__':
     client = Client()
-    client.run("Token here")
+    client.run(os.environ['DISCORD_TOKEN'])
