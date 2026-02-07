@@ -3,3 +3,4 @@ aiohttp>=3.9.0
 flask>=2.3.0
 requests>=2.31.0
 openai>=1.0.0
+beautifulsoup4>=4.12.0
