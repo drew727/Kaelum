@@ -22,7 +22,6 @@ class Client(commands.Bot):
         )
 
     async def setup_hook(self): #overwriting a handler
-        print(f"\033[31mLogged in as {client.user}\033[39m")
         cogs_folder = f"{os.path.abspath(os.path.dirname(__file__))}/cogs"
         for filename in os.listdir(cogs_folder):
             print(filename)
@@ -30,9 +29,11 @@ class Client(commands.Bot):
                 await client.load_extension(f"cogs.{filename[:-3]}")
         await client.tree.sync()
         print("Loaded cogs")
-
-if __name__ == '__main__':
+def run():
     port = int(os.environ.get("PORT", 3000))
     app.run(host="0.0.0.0", port=port)
+
+if __name__ == '__main__':
+    threading.Thread(target=run).start()
     client = Client()
     client.run(os.environ['DISCORD_TOKEN'])
