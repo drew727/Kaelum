@@ -34,6 +34,6 @@ def run():
     app.run(host="0.0.0.0", port=port)
 
 if __name__ == '__main__':
-    threading.Thread(target=run).start()
+    threading.Thread(target=run, daemon=True).start()
     client = Client()
     client.run(os.environ['DISCORD_TOKEN'])
