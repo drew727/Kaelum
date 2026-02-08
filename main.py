@@ -3,14 +3,7 @@
 import os
 import discord
 from discord.ext import commands
-from flask import Flask, jsonify, request, Response, stream_with_context, send_from_directory
 import threading
-
-app = Flask(__name__)
-
-@app.route('/', methods=['GET'])
-def home():
-    return "Bot is running!"
 
 
 class Client(commands.Bot):
@@ -29,11 +22,5 @@ class Client(commands.Bot):
                 await client.load_extension(f"cogs.{filename[:-3]}")
         await client.tree.sync()
         print("Loaded cogs")
-def run():
-    port = int(os.environ.get("PORT", 3000))
-    app.run(host="0.0.0.0", port=port)
-
-if __name__ == '__main__':
-    threading.Thread(target=run, daemon=True).start()
-    client = Client()
-    client.run(os.environ['DISCORD_TOKEN'])
+client = Client()
+client.run(os.environ['DISCORD_TOKEN'])
