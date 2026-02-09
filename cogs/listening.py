@@ -13,6 +13,7 @@ class Listen(commands.Cog):
         self.listening_channels = [1469061074744774860] #channel id for 'ai-chat'
 
     # When a message is sent in any of the listening channels, check the previous 10 messages in that channel for context and convert it to json
+    '''
     @commands.Cog.listener()
     async def on_message(self, message):
         print("processing message")
@@ -29,6 +30,6 @@ class Listen(commands.Cog):
             await message.channel.send(response)
             print(context)
             await message.chamnel.send("testing")
-        await self.bot.process_commands(message)
+        await self.bot.process_commands(message)'''
 async def setup(client):
     await client.add_cog(Listen(client))
