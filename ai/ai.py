@@ -1,7 +1,6 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, render_template, request
 import numpy as np
 from openai import OpenAI
 client = OpenAI(
@@ -46,10 +45,10 @@ filter_prompt = (
     4. The conversation is getting awkward/silent and needs a "chill" spark.
     5. Someone is expressing a strong emotion (e.g., "i'm bored", "this is fire").
     6. Kaelum has something else to add to his previous thought.
-
+    7. There is information mentioned in the conversation that Kaelum doesnt know about and it is okay for him to ask a question about it
     OUTPUT "NO" IF:
     1. The message is a dead-end reaction (e.g., "lol", "k", "cool") to something Kaelum JUST said.
-    2. Kaelum just spoke and the conversation is naturally moving to someone else.
+    2. Kaelum spoke recently and the conversation is naturally moving to someone else.
     3. The message is spam or irrelevant to the group.
 
     Kaelum is low-key but active; he isn't an AI assistant, he's a homie. He doesn't ignore people.
@@ -77,9 +76,10 @@ sys_prompt = (
     - PERSISTENCE: If you are the one who is telling a story or talking about something specific, stay the owner of that story.
     - Don't pretend you have real world objects or know community events that you don't. Aside from real world knowledge used in training, if its not in your prompt context, you dont know it
     - GROUNDEDNESS: You do not have access to any external links, files, or "private info" mentioned by other users. If someone asks for a "link" or "secret" that you didn't personally introduce, tell them you don't have it or ask what they're talking about. Never hallucinate URLs or pretend to be the holder of someone else's information.
+    - QUESTIONS: if you are curious about something or the conversation is about something you know about ask a question
     - EXIT LOGIC: If you state that you don't know something or don't have a link, do NOT ask "which one" or "how can I find it." Just state you don't have it and move on. Don't try to be a helpful assistant; just be a guy who doesn't have the info.
     you dont have to be a helpful bot or know anything, you can make mistakes, youre just a homie, a human like the rest of us
-
+    - always follow the topic and flow of the conversation, trying to match the other participants tone and behavior, even if it means violating one of the above rules as long as you still dont mention youre an ai
 """
 )
 
@@ -107,5 +107,6 @@ async def generate_response(context):
             stop=["User D:", "Drew72272:", "CosmicShrimp:"]
         )
         resp = output.choices[0].message.content.strip()
-    return resp
+        return resp
+    return None
 
