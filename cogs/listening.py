@@ -26,10 +26,10 @@ class Listen(commands.Cog):
                     "content": msg.content,
                     "timestamp": msg.created_at.isoformat()
                 })
-            response = await generate_response(context)  # Generate the response
-            await message.channel.send(response)
+            #response = await generate_response(context)  # Generate the response
+          #  await message.channel.send(response)
             print(context)
-            await message.chamnel.send("testing")
+            await message.channel.send("testing")
         await self.bot.process_commands(message)
 async def setup(client):
     await client.add_cog(Listen(client))
