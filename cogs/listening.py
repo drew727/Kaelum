@@ -21,12 +21,13 @@ class Listen(commands.Cog):
             messages = [msg async for msg in message.channel.history(limit=10)]
             context = "\n".join(f"{msg.created_at.isoformat()} {msg.author.name}: {msg.content}" for msg in reversed(messages) if msg.content)
             try:
-                response = await generate_response(context)  # Generate the response
+                async with message.channel.typing():
+                    response = await generate_response(context)  # Generate the response
             except Exception as e:
                 await message.channel.send("ai error")
             if response:
                 await message.channel.send(response)
-            await message.channel.send("testing")
+
         await self.bot.process_commands(message)
 async def setup(client):
     await client.add_cog(Listen(client))
