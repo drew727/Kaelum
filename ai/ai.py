@@ -10,7 +10,7 @@ client = OpenAI(
 )
 client2 = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=os.env["OPENROUTER_KEY"])
+    api_key=os.environ["OPENROUTER_KEY"])
 ''' placeholder search using duckduck go, will be replaced with logic using google api
 def search_the_web(query):
     session = requests.Session()
