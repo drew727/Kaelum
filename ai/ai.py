@@ -93,7 +93,7 @@ async def generate_response(context):
     random.shuffle(model_queue)
     for m in model_queue:
         try:
-            can_go = client.chat.completions.create(
+            can_go = client2.chat.completions.create(
                 model=m,
                 messages=[
                     {"role": "system", "content": filter_prompt},
@@ -108,7 +108,7 @@ async def generate_response(context):
     if can_go and 'YES' in can_go.choices[0].message.content.strip().upper():
         for m in model_queue:
             try:
-                output = client.chat.completions.create(
+                output = client2.chat.completions.create(
                     model=m,
                     messages=[
                         {"role": "system", "content": sys_prompt},
