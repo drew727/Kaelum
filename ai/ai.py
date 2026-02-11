@@ -110,7 +110,7 @@ async def generate_response(context):
         for m in model_queue:
             try:
                 output = client2.chat.completions.create(
-                    model= "claude-3-haiku-20240307",
+                    model= "openai/gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": sys_prompt},
                         {"role": "user", "content": context + f"\nKaelum: "}
