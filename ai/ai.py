@@ -2,11 +2,15 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import numpy as np
+import random
 from openai import OpenAI
 client = OpenAI(
   base_url="https://api.groq.com/openai/v1",
   api_key=os.environ['LLMKEY'],
 )
+client2 = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.env["OPENROUTER_KEY"])
 ''' placeholder search using duckduck go, will be replaced with logic using google api
 def search_the_web(query):
     session = requests.Session()
@@ -86,6 +90,7 @@ sys_prompt = (
 )
 model_queue = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "groq/compound", "grok/compound-mini"]
 async def generate_response(context):
+    random.shuffle(model_queue)
     for m in model_queue:
         try:
             can_go = client.chat.completions.create(
