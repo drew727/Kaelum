@@ -84,9 +84,9 @@ sys_prompt = (
 
 """
 )
-model_list = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "groq/compound", "grok/compound-mini"]
+model_queue = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "groq/compound", "grok/compound-mini"]
 async def generate_response(context):
-    for m in model_list:
+    for m in model_queue:
         try:
             can_go = client.chat.completions.create(
                 model=m,
@@ -101,7 +101,7 @@ async def generate_response(context):
             continue
 
     if can_go and 'YES' in can_go.choices[0].message.content.strip().upper():
-        for m in models:
+        for m in model_queue:
             try:
                 output = client.chat.completions.create(
                     model=m,
