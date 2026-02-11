@@ -91,6 +91,7 @@ sys_prompt = (
 model_queue = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "groq/compound", "grok/compound-mini"]
 async def generate_response(context):
     random.shuffle(model_queue)
+    can_go = None
     for m in model_queue:
         try:
             can_go = client2.chat.completions.create(
