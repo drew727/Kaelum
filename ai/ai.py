@@ -84,31 +84,39 @@ sys_prompt = (
 
 """
 )
-
+model_list = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "groq/compound", "grok/compound-mini"]
 async def generate_response(context):
-    can_go = client.chat.completions.create(
-        model="Llama-3.3-70b-versatile",
-        messages=[
-            {"role": "system", "content": filter_prompt},
-            {"role": "user", "content": f"{context}\nShould Kaelum respond?"}
-        ],
-        temperature=0.1,
-        max_tokens=1
-    )
+    for m in model_list:
+        try:
+            can_go = client.chat.completions.create(
+                model=m,
+                messages=[
+                    {"role": "system", "content": filter_prompt},
+                    {"role": "user", "content": f"{context}\nShould Kaelum respond?"}
+                ],
+                 temperature=0.1,
+                 max_tokens=1
+            )
+        except Exception as e:
+            continue
 
-    if 'YES' in can_go.choices[0].message.content.strip().upper():
-        output = client.chat.completions.create(
-            model="groq/compound-mini",
-            messages=[
-                {"role": "system", "content": sys_prompt},
-                {"role": "user", "content": context + f"\nKaelum: "}
-            ],
-            temperature=0.2,
-            frequency_penalty=1.0,
-            max_tokens=40,
-            stop=["User D:", "Drew72272:", "CosmicShrimp:"]
-        )
-        resp = output.choices[0].message.content.strip()
-        return resp
+    if can_go and 'YES' in can_go.choices[0].message.content.strip().upper():
+        for m in models:
+            try:
+                output = client.chat.completions.create(
+                    model=m,
+                    messages=[
+                        {"role": "system", "content": sys_prompt},
+                        {"role": "user", "content": context + f"\nKaelum: "}
+                    ],
+                    temperature=0.2,
+                    frequency_penalty=1.0,
+                    max_tokens=40,
+                    stop=["User D:", "Drew72272:", "CosmicShrimp:"]
+                )
+                resp = output.choices[0].message.content.strip()
+                return resp
+            except Exception as e:
+                continue
     return None
 
