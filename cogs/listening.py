@@ -24,7 +24,7 @@ class Listen(commands.Cog):
                 async with message.channel.typing():
                     response = await generate_response(context)  # Generate the response
             except Exception as e:
-                await message.channel.send("ai error")
+                await message.channel.send(f"AI ERROR: {e}")
             if response:
                 await message.channel.send(response)
 
