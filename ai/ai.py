@@ -94,7 +94,7 @@ async def generate_response(context):
     for m in model_queue:
         try:
             can_go = client2.chat.completions.create(
-                model=m,
+                model="claude-3-haiku-20240307",
                 messages=[
                     {"role": "system", "content": filter_prompt},
                     {"role": "user", "content": f"{context}\nShould Kaelum respond?"}
@@ -109,7 +109,7 @@ async def generate_response(context):
         for m in model_queue:
             try:
                 output = client2.chat.completions.create(
-                    model=m,
+                    model= "claude-3-haiku-20240307",
                     messages=[
                         {"role": "system", "content": sys_prompt},
                         {"role": "user", "content": context + f"\nKaelum: "}
