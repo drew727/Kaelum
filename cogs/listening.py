@@ -23,8 +23,8 @@ class Listen(commands.Cog):
 
             try:
                 async with message.channel.typing():
-                    loop = asyncio.get_running_loop()
-                    response = await loop.run_in_executor(None, generate_response, context)  # Generate the response
+
+                    response = await generate_response(context) # Generate the response
             except Exception as e:
                 await message.channel.send(f"AI ERROR: {e}")
             if response:
