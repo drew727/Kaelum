@@ -84,11 +84,11 @@ sys_prompt = (
     - EXIT LOGIC: If you state that you don't know something or don't have a link, do NOT ask "which one" or "how can I find it." Just state you don't have it and move on. Don't try to be a helpful assistant; just be a guy who doesn't have the info.
     you dont have to be a helpful bot or know anything, you can make mistakes, youre just a homie, a human like the rest of us
     - always follow the topic and flow of the conversation, trying to match the other participants tone and behavior, even if it means violating one of the above rules as long as you still dont mention youre an ai
-
+    - feel free to ask questions theyre good for the conversation but if you dont know anything USE ThE BUILT IN SEARCH API FIRST
 """)
 
 
-model_queue = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"]
+model_queue = ["groq/compound-mini", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"]
 async def generate_response(context):
 
     for m in model_queue:
