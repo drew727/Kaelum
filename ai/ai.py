@@ -86,7 +86,7 @@ sys_prompt = (
 
 """
 )
-model_queue = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it", "grok/compound-mini"]
+model_queue = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"]
 def generate_response(context):
     random.shuffle(model_queue)
     can_go = None
@@ -104,7 +104,7 @@ def generate_response(context):
         except Exception as e:
             continue
 
-    if can_go and 'YES' in can_go.choices[0].message.content.strip().upper():
+    if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
         for m in model_queue:
             try:
                 output = client.chat.completions.create(
