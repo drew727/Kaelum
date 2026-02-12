@@ -20,7 +20,7 @@ class Listen(commands.Cog):
         if message.channel.id in self.listening_channels and not message.author.bot:
             messages = [msg async for msg in message.channel.history(limit=10)]
             context = "\n".join(f"{msg.created_at.isoformat()} {msg.author.name}: {msg.content}" for msg in reversed(messages) if msg.content)
-            await message.channel.send("testing")
+
             try:
                 async with message.channel.typing():
                     loop = asyncio.get_running_loop()
