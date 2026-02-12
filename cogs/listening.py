@@ -1,5 +1,5 @@
 import logging
-
+import asyncio
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
@@ -22,7 +22,8 @@ class Listen(commands.Cog):
             context = "\n".join(f"{msg.created_at.isoformat()} {msg.author.name}: {msg.content}" for msg in reversed(messages) if msg.content)
             try:
                 async with message.channel.typing():
-                    response = await generate_response(context)  # Generate the response
+                    loop = asyncio.get_running_loop()
+                    response = await loop.run_in_executor(None, generate_response, context)  # Generate the response
             except Exception as e:
                 await message.channel.send(f"AI ERROR: {e}")
             if response:
