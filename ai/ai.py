@@ -131,6 +131,8 @@ async def generate_response(context):
                 error = str(e)
                 continue
         return f"MODEL ERROR: {error}"
+    else:
+        return
     return None
 
 
