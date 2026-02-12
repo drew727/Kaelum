@@ -88,14 +88,14 @@ sys_prompt = (
 
 """
 )
-model_queue = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "groq/compound", "grok/compound-mini"]
-async def generate_response(context):
+model_queue = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it", "grok/compound-mini"]
+def generate_response(context):
     random.shuffle(model_queue)
     can_go = None
     for m in model_queue:
         try:
-            can_go = client2.chat.completions.create(
-                model="openai/gpt-4o-mini",
+            can_go = client.chat.completions.create(
+                model=m,
                 messages=[
                     {"role": "system", "content": filter_prompt},
                     {"role": "user", "content": f"{context}\nShould Kaelum respond?"}
@@ -109,8 +109,8 @@ async def generate_response(context):
     if can_go and 'YES' in can_go.choices[0].message.content.strip().upper():
         for m in model_queue:
             try:
-                output = client2.chat.completions.create(
-                    model= "openai/gpt-4o-mini",
+                output = client.chat.completions.create(
+                    model= m,
                     messages=[
                         {"role": "system", "content": sys_prompt},
                         {"role": "user", "content": context + f"\nKaelum: "}
@@ -121,6 +121,9 @@ async def generate_response(context):
                     stop=["User D:", "Drew72272:", "CosmicShrimp:"]
                 )
                 resp = output.choices[0].message.content.strip()
+                model_queue.pop(model_queue.find(m))
+                model_queue.insert(0, m)
+
                 return resp
             except Exception as e:
                 continue
