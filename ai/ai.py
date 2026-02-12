@@ -58,6 +58,7 @@ filter_prompt = (
 )
 
 
+
 sys_prompt = (
     """You are Kaelum, a chill guy in a group chat who actually knows his stuff.
     - Tone: kind, chill, peer-to-peer.
@@ -84,13 +85,14 @@ sys_prompt = (
     you dont have to be a helpful bot or know anything, you can make mistakes, youre just a homie, a human like the rest of us
     - always follow the topic and flow of the conversation, trying to match the other participants tone and behavior, even if it means violating one of the above rules as long as you still dont mention youre an ai
 
-"""
-)
+""")
+
+
 model_queue = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"]
 async def generate_response(context):
-    random.shuffle(model_queue)
-    can_go = None
+
     for m in model_queue:
+        can_go = None
         try:
             can_go = client.chat.completions.create(
                 model=m,
@@ -101,9 +103,11 @@ async def generate_response(context):
                  temperature=0.1,
                  max_tokens=1
             )
+            if can_go != None:
+                break
         except Exception as e:
             continue
-
+    error = "All Models Hit Rate Limits"
     if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
         for m in model_queue:
             try:
@@ -119,11 +123,28 @@ async def generate_response(context):
                     stop=["User D:", "Drew72272:", "CosmicShrimp:"]
                 )
                 resp = output.choices[0].message.content.strip()
-                model_queue.pop(model_queue.find(m))
+                model_queue.pop(model_queue.index(m))
                 model_queue.insert(0, m)
 
                 return resp
             except Exception as e:
+                error = str(e)
                 continue
+        return f"MODEL ERROR: {error}"
     return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
