@@ -98,7 +98,7 @@ async def generate_response(context):
                 model=m,
                 messages=[
                     {"role": "system", "content": filter_prompt},
-                    {"role": "user", "content": f"context: {context[:9]}, last message: {context[-1]} \nShould Kaelum respond?"}
+                    {"role": "user", "content": f"context: {context} \nShould Kaelum respond?"}
                 ],
                  temperature=0.1,
                  max_tokens=1
@@ -115,7 +115,7 @@ async def generate_response(context):
                     model= m,
                     messages=[
                         {"role": "system", "content": sys_prompt},
-                        {"role": "user", "content": f"context: {context[:9]}, last message: {context[-1]} \nKaelum: "}
+                        {"role": "user", "content": f"context: {context} \nKaelum: "}
                     ],
                     temperature=0.2,
                     presence_penalty=1.0,
