@@ -118,7 +118,7 @@ async def generate_response(context):
                         {"role": "user", "content": context + f"\nKaelum: "}
                     ],
                     temperature=0.2,
-                    prescence_penalty=1.0,
+                    presence_penalty=1.0,
                     frequency_penalty=1.2,
                     max_tokens=40,
                     stop=["User D:", "Drew72272:", "CosmicShrimp:"]
