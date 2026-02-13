@@ -88,7 +88,7 @@ sys_prompt = (
 """)
 
 
-model_queue = ["groq/compound-mini", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"]
+model_queue = ["groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"]
 async def generate_response(context):
 
     for m in model_queue:
@@ -118,7 +118,8 @@ async def generate_response(context):
                         {"role": "user", "content": context + f"\nKaelum: "}
                     ],
                     temperature=0.2,
-                    frequency_penalty=1.0,
+                    prescence_penalty=1.0,
+                    frequency_penalty=1.2,
                     max_tokens=40,
                     stop=["User D:", "Drew72272:", "CosmicShrimp:"]
                 )
