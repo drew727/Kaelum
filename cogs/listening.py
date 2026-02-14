@@ -10,7 +10,7 @@ from ai.ai import generate_response # import ai logic
 class Listen(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.listening_channels = [1469061074744774860, 1348353795666477090] #channel id for 'ai-chat'
+        self.listening_channels = [1469061074744774860, 1348353795666477090, 1305221609539244090] #channel id for 'ai-chat'
 
     # When a message is sent in any of the listening channels, check the previous 10 messages in that channel for context and convert it to json
 
