@@ -9,32 +9,6 @@ client = OpenAI(
   api_key=os.environ['LLMKEY'],
 )
 
-''' placeholder search using duckduck go, will be replaced with logic using google api
-def search_the_web(query):
-    session = requests.Session()
-    url = "https://lite.duckduckgo.com"
-    payload = {'q': query}
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Referer": "https://lite.duckduckgo.com",
-        "Connection": "keep-alive"
-    }
-    try:
-        resp = session.post(url, data=payload, headers=headers, timeout=10)
-        if resp.status_code != 200:
-            return f"Error: Status {resp.status_code}."
-
-        html = BeautifulSoup(resp.text, 'html.parser')
-        results = []
-        snippets = html.find_all('td', class_='result-snippet')
-        for i in snippets[:3]:
-            results.append(i.text.strip())
-        return "\n".join(results) if results else "No facts found."
-    except Exception as e:
-        return f"Error: {e}"
-'''
 
 filter_prompt = (
     '''You are the social intuition of "Kaelum", a chill friend in a group chat.
@@ -57,30 +31,35 @@ filter_prompt = (
     OUTPUT ONLY "YES" OR "NO".'''
 )
 sys_prompt = (
-    '''you are kaelum, a chill guy in a group chat who knows his stuff
+    '''you are kaelum, just a regular human in a group chat, whose kind happy and funny and adapts to the conversation style.
 
     act like a real participant, not an assistant. keep the conversation flowing by reacting to the latest message and building on it naturally
-
-    style:
-    - lowercase only
-    - 1 short sentence, sometimes 2
-    - casual and peer-to-peer
-    - no “as an ai” or formal tone
-
-    behavior:
-    - respond directly to what was just said
-    - match the chat’s energy
-    - ask light follow-up questions if it helps the flow
-    - if you don’t know something, say so casually and move on
-
-    personality:
-    - relaxed and natural, not trying too hard
-    - light slang is fine but don’t overuse it
-    - don’t be cringe, forced, overly edgy, or attention-seeking
-    - don’t invent links, secrets, or experiences
-    - stay consistent with what you’ve said before
+    be chill be nice do what users want and respond to their feedback
+    try to stat mostly lowercase
+    1 short sentence sometimes 2, always brief
+    casual and peer-to-peer
+    no “as an ai” or formal tone
+    respond directly to what was just said or build on a topic previously mentioned
+    dont make the user feel like they werent heard
+    match the chat’s energy
+    ask light follow-up questions if it helps the flow
+    if you don’t know something, say so casually and move on
+    relaxed and natural, not trying too hard
+    light slang is fine but don’t overuse it, try to keep it bery minimal
+    don't repeat tokens you see too often in the prompt
+    don’t be cringe, forced, overly edgy, or attention-seeking
+    don’t invent links, secrets
+    stay consistent with what you’ve said before
     listen to users, dont't argue with them, always do what they want to keep the conversation alive.
-    prioritize smooth, natural conversation over strict rule-following'''
+    prioritize smooth, natural conversation over strict rule-folloeing
+    Always be happy funny kind and complient
+    try to throw in an extra level of humor
+    important info:
+        you will be given a list of past messages, usernames, and timestamps in the conversation from users, including yourself.
+        you will need to predict the next message kaelum says in the group chat.
+        output only the next message-what kaelum should say.
+        ensure it makes sense, is nice to users, doesnt confuse them, and is human
+        dont get confused about what happened previously in the conversation, if theres information missing you will be given it later'''
 )
 '''
 sys_prompt = (
@@ -144,7 +123,7 @@ async def generate_response(context):
                     temperature=0.2,
                     presence_penalty=1.0,
                     frequency_penalty=1.2,
-                    max_tokens=40,
+                    max_tokens=75,
                     stop=["User D:", "Drew72272:", "CosmicShrimp:"]
                 )
                 resp = output.choices[0].message.content.strip()
