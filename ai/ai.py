@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import random
 from openai import OpenAI
-groq_client = OpenAI(
+client = OpenAI(
   base_url="https://api.groq.com/openai/v1",
   api_key=os.environ['LLMKEY'],
 )
@@ -74,7 +74,7 @@ sys_prompt = (
             If the user seems upset, disable humor.'''
 )
 
-model_queue = ["groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b", "meta-llama/llama-guard-4-12b"]
+model_queue = ["groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b", "qwen/qwen3-32b", "meta-llama/llama-guard-4-12b"]
 async def generate_response(context):
 
     for m in model_queue:
