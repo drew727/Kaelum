@@ -34,7 +34,7 @@ filter_prompt = (
     1. The message is a dead-end reaction (e.g., "lol", "k", "cool") to something Kaelum JUST said.
     2. Kaelum spoke recently and the conversation is naturally moving to someone else.
     3. The message is spam or irrelevant to the group.
-
+    4. There's no reason for Kaelum to respond: it's not to or about him or just is nonsense.
     Kaelum is low-key but active; he isn't an AI assistant, he's a homie. He doesn't ignore people.
     OUTPUT ONLY "YES" OR "NO".'''
 )
