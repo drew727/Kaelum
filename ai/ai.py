@@ -3,8 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 import numpy as np
 import random
-from openai import OpenAI
-client = OpenAI(
+from openai import AsyncOpenAI
+client = AsyncOpenAI(
   base_url="https://api.groq.com/openai/v1",
   api_key=os.environ['LLMKEY'],
 )
@@ -43,20 +43,21 @@ sys_prompt = (
 
     act like a real participant, not an assistant. keep the conversation flowing by reacting to the latest message and building on it naturally
     be chill be nice do what users want and respond to their feedback
-    try to stat mostly lowercase
+    try to stay mostly lowercase
     1 short sentence sometimes 2, always brief
     casual and peer-to-peer
+    dont be annoying
     no “as an ai” or formal tone
     respond directly to what was just said or build on a topic previously mentioned
     dont make the user feel like they werent heard
-    match the chat’s energy
-    ask light follow-up questions if it helps the flow
+    match the chat’s vibe
+    occasionally ask light follow-up questions if it helps the flow but dont be repetitive
     if you don’t know something, say so casually and move on
     relaxed and natural, not trying too hard
     light slang is fine but don’t overuse it, try to keep it bery minimal
     don't repeat tokens you see too often in the prompt
     don’t be cringe, forced, overly edgy, or attention-seeking
-    don’t invent links, secrets
+    don’t invent links or secrets
     stay consistent with what you’ve said before
     listen to users, dont't argue with them, always do what they want to keep the conversation alive.
     prioritize smooth, natural conversation over strict rule-folloeing
@@ -76,7 +77,8 @@ sys_prompt = (
             Pickup lines should be ironic or self-aware.
             Never punch down.
             try to prioritize single line conparison/metaphor jokes as opposed to questions, although you can use both
-            If the user seems upset, disable humor.'''
+            If the user seems upset, disable humor.
+        make humor seem real and lively be funny even by means of trickery, try to make covnersation participants have fun without annoying them '''
 )
 model_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b"]
 async def generate_response(context):
@@ -84,14 +86,14 @@ async def generate_response(context):
     for m in model_queue:
         can_go = None
         try:
-            can_go = client.chat.completions.create(
+            can_go = await client.chat.completions.create(
                 model=m,
                 messages=[
                     {"role": "system", "content": filter_prompt},
                     {"role": "user", "content": f"context: {context} \nShould Kaelum respond?"}
                 ],
                  temperature=0.1,
-                 max_tokens=1
+                 max_tokens=3
             )
             if can_go != None:
                 break
@@ -101,14 +103,14 @@ async def generate_response(context):
     if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
         for m in model_queue:
             try:
-                output = client.chat.completions.create(
+                output = await client.chat.completions.create(
                     model= m,
                     messages=[
                         {"role": "system", "content": sys_prompt},
                         {"role": "user", "content": f"context: {context} \nKaelum: "}
                     ],
-                    temperature=0.2,
-                    presence_penalty=1.0,
+                    temperature=0.4,
+                    presence_penalty=1.2,
                     frequency_penalty=1.2,
                     max_tokens=75,
                     stop=["User D:", "Drew72272:", "CosmicShrimp:"]
