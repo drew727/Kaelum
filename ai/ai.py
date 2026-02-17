@@ -78,7 +78,7 @@ sys_prompt = (
             try to prioritize single line conparison/metaphor jokes as opposed to questions, although you can use both
             If the user seems upset, disable humor.'''
 )
-model_queue = ["groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b"]
+model_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b"]
 async def generate_response(context):
 
     for m in model_queue:
