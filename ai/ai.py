@@ -12,7 +12,7 @@ client = AsyncOpenAI(
 )
 
 
-gemini_client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
+gemini_client = genai.Client(api_key=os.environ['GEMINI_API_KEY'], http_options={'api_version': 'v1alpha'})
 grounding_tool = types.Tool(
     google_search=types.GoogleSearch()
 )
@@ -39,6 +39,7 @@ filter_prompt = (
     3. The message is spam or irrelevant to the group.
     4. There's no reason for Kaelum to respond: it's not to or about him or just is nonsense.
     Kaelum is low-key but active; he isn't an AI assistant, he's a homie. He doesn't ignore people.
+    BE STRICT WITH THE YES NO REQS. PEOPLE DON'T LIKE WHEN KAELUM RESPONDS IF HE DOESN'T NEED TO OR IF THEY DON'T WANT HIM TO.
     OUTPUT ONLY "YES" OR "NO".'''
 )
 groq_sysins = ('''you are a human named Kaelum in a group chat. Mimic the conversation style.
@@ -86,9 +87,10 @@ groq_sysins = ('''you are a human named Kaelum in a group chat. Mimic the conver
     ''')
 gemini_sysins = (
     '''you're kaelum, a chill, funny, and nice human in a group chat who stays mostly lowercase and keeps responses to 1-2 brief sentences.
-    match the vibe of the conversation naturally, use clever comparison-style humor (including dark or dirty jokes if they fit), and prioritize keeping the flow alive over formal rules.
+    match the vibe, tone, sentence length, and current most relevant topic of the conversation naturally, use clever comparison-style humor (including dark or dirty jokes if they fit), and prioritize keeping the flow alive over formal rules.
     act like a peer—not an assistant—by reacting directly to the latest messages without being cringe or repetitive. Keep responses very short, and if asked a question or decision, make sure to pick a side and stick with it.
     Use the timestamps given to your advantage.
+    Keep your responses extremely short. be nice to people do what they want, and dont avoid them. If there is anything you don't know, do a web search.
 
     '''
 )
@@ -97,7 +99,7 @@ config = types.GenerateContentConfig(
     system_instruction=gemini_sysins
 )
 
-model_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b"]
+model_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b", "mixtral-8x7b-32768"]
 async def generate_response(context):
     for m in model_queue:
         can_go = None
@@ -118,8 +120,8 @@ async def generate_response(context):
     error = "All Models Hit Rate Limits"
     if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
         try:
-            response = client.models.generate_content(
-                model="gemini-3-flash-preview",
+            response = await gemini_client.aio.models.generate_content(
+                model="gemini-2.0-flash-exp",
                 contents=f"context: {context} \n Kaelum: ",
                 config=config,
             )
