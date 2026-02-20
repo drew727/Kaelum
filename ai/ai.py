@@ -94,7 +94,7 @@ gemini_sysins = (
 )
 config = types.GenerateContentConfig(
     tools=[grounding_tool],
-    system_instruction=sys_prompt
+    system_instruction=gemini_sysins
 )
 
 model_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b"]
