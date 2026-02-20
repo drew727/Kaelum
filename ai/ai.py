@@ -5,6 +5,7 @@ import numpy as np
 import random
 from openai import AsyncOpenAI
 from google import genai
+from google.genai import types
 client = AsyncOpenAI(
   base_url="https://api.groq.com/openai/v1",
   api_key=os.environ['LLMKEY'],
