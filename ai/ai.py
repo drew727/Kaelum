@@ -4,15 +4,17 @@ from bs4 import BeautifulSoup
 import numpy as np
 import random
 from openai import AsyncOpenAI
+from google import genai
 client = AsyncOpenAI(
   base_url="https://api.groq.com/openai/v1",
   api_key=os.environ['LLMKEY'],
 )
 
-#gemini_client = OpenAI(
-   # api_key=os.environ['GEMINIKEY'],
-  #  base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
-#)
+
+gemini_client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
+grounding_tool = types.Tool(
+    google_search=types.GoogleSearch()
+)
 
 def web_search():
   # gemini project comes with built-in google search
@@ -38,8 +40,7 @@ filter_prompt = (
     Kaelum is low-key but active; he isn't an AI assistant, he's a homie. He doesn't ignore people.
     OUTPUT ONLY "YES" OR "NO".'''
 )
-sys_prompt = (
-    '''you are kaelum, just a regular human in a group chat, whose kind happy and funny and adapts to the conversation style.
+groq_sysins = ('''you are a human named Kaelum in a group chat. Mimic the conversation style.
 
     act like a real participant, not an assistant. keep the conversation flowing by reacting to the latest message and building on it naturally
     be chill be nice do what users want and respond to their feedback
@@ -81,11 +82,22 @@ sys_prompt = (
             try to prioritize single line conparison/metaphor jokes as opposed to questions, although you can use both
             If the user seems upset, disable humor.
         make humor seem real and lively be funny even by means of trickery, try to make covnersation participants have fun without annoying them
+    ''')
+gemini_sysins = (
+    '''you're kaelum, a chill, funny, and nice human in a group chat who stays mostly lowercase and keeps responses to 1-2 brief sentences.
+    match the vibe of the conversation naturally, use clever comparison-style humor (including dark or dirty jokes if they fit), and prioritize keeping the flow alive over formal rules.
+    act like a peer—not an assistant—by reacting directly to the latest messages without being cringe or repetitive. Keep responses very short, and if asked a question or decision, make sure to pick a side and stick with it.
+    Use the timestamps given to your advantage.
+
     '''
 )
+config = types.GenerateContentConfig(
+    tools=[grounding_tool],
+    system_instruction=sys_prompt
+)
+
 model_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b"]
 async def generate_response(context):
-
     for m in model_queue:
         can_go = None
         try:
@@ -104,29 +116,37 @@ async def generate_response(context):
             continue
     error = "All Models Hit Rate Limits"
     if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
-        for m in model_queue:
-            try:
-                output = await client.chat.completions.create(
-                    model= m,
-                    messages=[
-                        {"role": "system", "content": sys_prompt},
-                        {"role": "user", "content": f"context: {context} \nKaelum: "}
-                    ],
-                    temperature=0.4,
-                    presence_penalty=1.2,
-                    frequency_penalty=1.2,
-                    max_tokens=75,
-                    stop=["User D:", "Drew72272:", "CosmicShrimp:"]
-                )
-                resp = output.choices[0].message.content.strip()
-                model_queue.pop(model_queue.index(m))
-                model_queue.insert(0, m)
+        try:
+            response = client.models.generate_content(
+                model="gemini-3-flash-preview",
+                contents=f"context: {context} \n Kaelum: ",
+                config=config,
+            )
+            return response.text
+        except Exception as e:
+            for m in model_queue:
+                try:
+                    output = await client.chat.completions.create(
+                        model= m,
+                        messages=[
+                            {"role": "system", "content": groq_sysins},
+                            {"role": "user", "content": f"context: {context} \nKaelum: "}
+                        ],
+                        temperature=0.4,
+                        presence_penalty=1.2,
+                        frequency_penalty=1.2,
+                        max_tokens=75,
+                        stop=["User D:", "Drew72272:", "CosmicShrimp:"]
+                    )
+                    resp = output.choices[0].message.content.strip()
+                    model_queue.pop(model_queue.index(m))
+                    model_queue.insert(0, m)
 
-                return resp
-            except Exception as e:
-                error = str(e)
-                continue
-        return f"MODEL ERROR: {error}"
+                    return resp
+                except Exception as e:
+                    error = str(e)
+                    continue
+            return f"MODEL ERROR: {error}"
     else:
         return
     return None
