@@ -122,7 +122,7 @@ async def generate_response(context):
         try:
             response = await gemini_client.aio.models.generate_content(
                 model="gemini-2.0-flash-exp",
-                contents=f"context: {context} \n Kaelum: ",
+                contents=f"context: {context} \nUSE GOOGLE SEARCH FOR MIsSING INFORMATION.  Kaelum: ",
                 config=config,
             )
             return response.text
