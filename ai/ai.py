@@ -159,7 +159,7 @@ async def generate_response(context):
                     error = str(e)
                     continue
 
-
+            raise Exception("All Gemini models failed")
         except Exception as e:
             for m in groq_queue:
                 try:
