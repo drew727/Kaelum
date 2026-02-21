@@ -121,7 +121,7 @@ async def generate_response(context):
     if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
         try:
             response = await gemini_client.aio.models.generate_content(
-                model="gemini-3-flash-preview",
+                model="gemini-2.5-flash-lite",
                 contents=f"context: {context} \nUSE GOOGLE SEARCH FOR MIsSING INFORMATION.  Kaelum: ",
                 config=config,
             )
