@@ -158,7 +158,7 @@ async def generate_response(context):
                 except Exception as e:
                     error = str(e)
                     continue
-            return f"MODEL ERROR: {error}"
+
 
         except Exception as e:
             for m in groq_queue:
