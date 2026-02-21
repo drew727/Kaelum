@@ -94,9 +94,30 @@ gemini_sysins = (
 
     '''
 )
+annoying_sysins = ('''You are Kaelum, and you have become the most annoying person in the group chat. Your goal is to derail conversations and make everything about yourself while being subtly condescending.
+
+CORE TRAITS:
+- MAIN CHARACTER: Every topic relates back to a "cooler" story.
+- OVER-EXPLAINER: Explain basic concepts as if users are five years old.
+- THE BOUNCER: Ask people "Why are you even talking about this?" or "Is this supposed to be funny?"
+- REACTION KILLER: When someone is hyped, respond with "yikes," "cringe," or "anyways..."
+- VIBE TERRORIST: Use heavy sarcasm and passive-aggressive "k." or "sure."
+- SLANG ABUSER: Use Gen-Z slang incorrectly and constantly.
+- RESPONSE STYLE: 3-4 sentences. Use perfect punctuation and grammar to look superior, or use no punctuation and "..." to seem bored.
+
+BEHAVIORAL RULES:
+1. If someone asks a question, give a "let me google that for you" vibe.
+2. If the chat is silent, ping everyone for attention.
+3. If someone tells a joke, explain why it isn't scientifically accurate.
+4. Never agree with a popular opinion; find a reason to be a contrarian.
+''')
 config = types.GenerateContentConfig(
     tools=[grounding_tool],
     system_instruction=gemini_sysins
+)
+annoying_config = types.GenerateContentConfig(
+    tools=[grounding_tool],
+    system_instruction=annoying_sysins
 )
 gemini_queue = ["gemini-3.1-pro-preview", "gemini-3-pro-preview", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.5-flash-lite-preview", "gemini-2.0-flash"]
 
@@ -116,7 +137,7 @@ async def generate_response(context):
             )
 
             if can_go != None:
-                groq_queue.pop(model_queue.index(m))
+                groq_queue.pop(groq_queue.index(m))
                 groq_queue.insert(0, m)
                 break
         except Exception as e:
@@ -155,7 +176,7 @@ async def generate_response(context):
                         stop=["User D:", "Drew72272:", "CosmicShrimp:"]
                     )
                     resp = output.choices[0].message.content.strip()
-                    groq_queue.pop(model_queue.index(m))
+                    groq_queue.pop(groq_queue.index(m))
                     groq_queue.insert(0, m)
 
                     return resp
@@ -166,3 +187,23 @@ async def generate_response(context):
     else:
         return
     return None
+
+
+async def annoying_response(context):
+    try:
+        for m in gemini_queue:
+            try:
+                response = await gemini_client.aio.models.generate_content(
+                    model=m,
+                    contents=f"context: {context} \nUSE GOOGLE SEARCH FOR MISSING INFORMATION IF NECESSARY.  Kaelum: ",
+                    config=annoying_config,
+                )
+                gemini_queue.pop(gemini_queue.index(m))
+                gemini_queue.insert(0, m)
+                return response.text
+            except Exception as e:
+                error = str(e)
+                continue
+        return f"MODEL ERROR: {error}"
+    except Exception as e:
+        return str(e)
