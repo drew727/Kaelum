@@ -18,7 +18,7 @@ class Listen(commands.Cog):
     async def on_message(self, message):
         print("processing message")
         if message.channel.id in self.listening_channels and not message.author.bot:
-            messages = [msg async for msg in message.channel.history(limit=5)]
+            messages = [msg async for msg in message.channel.history(limit=7)]
             context = "\n".join(f"{msg.author.name}: {msg.content}" for msg in reversed(messages) if msg.content)
 
             try:
