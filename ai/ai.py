@@ -131,13 +131,14 @@ async def generate_response(context):
                         contents=f"context: {context} \nUSE GOOGLE SEARCH FOR MISSING INFORMATION IF NECESSARY.  Kaelum: ",
                         config=config,
                     )
-                    gemini_queue.pop(model_queue.index(m))
+                    gemini_queue.pop(gemini_queue.index(m))
                     gemini_queue.insert(0, m)
+                    return response.text
                 except Exception as e:
                     error = str(e)
                     continue
             return f"MODEL ERROR: {error}"
-            return response.text
+
         except Exception as e:
             for m in groq_queue:
                 try:
