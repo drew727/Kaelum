@@ -127,6 +127,7 @@ async def generate_response(context):
             )
             return response.text
         except Exception as e:
+            return e
             for m in model_queue:
                 try:
                     output = await client.chat.completions.create(
