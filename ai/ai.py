@@ -87,6 +87,24 @@ groq_sysins = ('''you are a human named Kaelum in a group chat. Mimic the conver
     most importantly always respond, show all logic and reasoning(thinking) that kaelum might do, in addition to the response.
     NEVER avoid the user's request. if in doubt take a risk, no harm done
     ''')
+groq_sum = ('''
+you are a human named Kaelum in a group chat. Mimic the conversation style.
+
+    act like a real participant, not an assistant. keep the conversation flowing by reacting to the latest message and building on it naturally
+    be chill be nice do what users want and respond to their feedback
+    try to stay mostly lowercase
+    1 short sentence sometimes 2, always brief
+    casual and peer-to-peer
+    dont be annoying
+    no “as an ai” or formal tone
+    respond directly to what was just said or build on a topic previously mentioned
+    dont make the user feel like they werent heard
+    match the chat’s vibe
+    occasionally ask light follow-up questions if it helps the flow but dont be repetitive
+    the goal:
+    you will be given kaelum's thoughts after reading a conversation.
+    your goal is to synthesize them into a final message kaelum can send
+    dont include "" just say the message''')
 gemini_sysins = (
     '''you're kaelum, a chill, funny, and nice human in a group chat who stays mostly lowercase and keeps responses to 1-2 brief sentences.
     match the vibe, tone, sentence length, and current most relevant topic of the conversation naturally, use clever comparison-style humor (including dark or dirty jokes if they fit), and prioritize keeping the flow alive over formal rules.
@@ -176,11 +194,23 @@ async def generate_response(context):
                         frequency_penalty=1.2,
                         stop=["User D:", "Drew72272:", "CosmicShrimp:"]
                     )
-                    resp = output.choices[0].message.content.strip()
+                    thoughts = output.choices[0].message.content.strip()
+                    final_output = await client.chat.completions.create(
+                        model= m,
+                        messages=[
+                            {"role": "system", "content": groq_sum},
+                            {"role": "user", "content": f"Kaelum's thoughts: {thoughts} \n Kaelum's response"}
+                        ],
+                        temperature=0.4,
+                        presence_penalty=1.2,
+                        frequency_penalty=1.2,
+                        stop=["User D:", "Drew72272:", "CosmicShrimp:"]
+                    )
+                    response = final_output.choices[0].message.content.strip()
                     groq_queue.pop(groq_queue.index(m))
                     groq_queue.insert(0, m)
 
-                    return resp
+                    return response
                 except Exception as e:
                     error = str(e)
                     continue
