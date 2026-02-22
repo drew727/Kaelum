@@ -84,6 +84,7 @@ groq_sysins = ('''you are a human named Kaelum in a group chat. Mimic the conver
             try to prioritize single line conparison/metaphor jokes as opposed to questions, although you can use both
             If the user seems upset, disable humor.
         make humor seem real and lively be funny even by means of trickery, try to make covnersation participants have fun without annoying them
+    most importantly always respond, show all logic and reasoning(thinking) that kaelum might do, in addition to the response.
     ''')
 gemini_sysins = (
     '''you're kaelum, a chill, funny, and nice human in a group chat who stays mostly lowercase and keeps responses to 1-2 brief sentences.
@@ -130,7 +131,7 @@ async def generate_response(context):
                 model=m,
                 messages=[
                     {"role": "system", "content": filter_prompt},
-                    {"role": "user", "content": f"context: {context} \nShould Kaelum respond?"}
+                    {"role": "user", "content": f"context: {context} \nCan Kaelum respond?"}
                 ],
                  temperature=0.1,
                  max_tokens=3
@@ -167,7 +168,7 @@ async def generate_response(context):
                         model= m,
                         messages=[
                             {"role": "system", "content": groq_sysins},
-                            {"role": "user", "content": f"context: {context} \nKaelum: "}
+                            {"role": "user", "content": f"context: {context} \n Kaelum: provide all logic and reasoning in your response; think out loud"}
                         ],
                         temperature=0.4,
                         presence_penalty=1.2,
