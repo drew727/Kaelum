@@ -14,15 +14,14 @@ class ChannelSelectView(View):
         super().__init__(timeout=60)
 
     @discord.ui.channel_select(
-        placeholder="Select a channel...", # Placeholder text for the dropdown
+        placeholder="Select a channel...",
         min_values=1,
         max_values=1,
-        # You can specify the types of channels to show (optional)
         channel_types=[ChannelType.text]
     )
     async def select_callback(self, interaction: discord.Interaction, select: ChannelSelect):
         if interaction.user.id not in [1217433559564947561, 1399422471580680333]:
-            id = channel.id
+            id = select.values[0]
             if channel_id in list(self.listening_channels.keys()):
                 old = self.listening_channels[id]
                 if old == "normal":
@@ -46,7 +45,7 @@ class Listen(commands.Cog):
             1360298343762362368: "normal"
         }
 
-    # When a message is sent in any of the listening channels, check the previous 10 messages in that channel for context and convert it to json
+    # When a message is sent in any of the listening channels, check the previous 7 messages in that channel for context and convert it to json
 
     @commands.Cog.listener()
     async def on_message(self, message):
