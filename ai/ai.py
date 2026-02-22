@@ -174,7 +174,6 @@ async def generate_response(context):
                         temperature=0.4,
                         presence_penalty=1.2,
                         frequency_penalty=1.2,
-                        max_tokens=75,
                         stop=["User D:", "Drew72272:", "CosmicShrimp:"]
                     )
                     resp = output.choices[0].message.content.strip()
