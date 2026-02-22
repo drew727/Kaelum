@@ -85,6 +85,7 @@ groq_sysins = ('''you are a human named Kaelum in a group chat. Mimic the conver
             If the user seems upset, disable humor.
         make humor seem real and lively be funny even by means of trickery, try to make covnersation participants have fun without annoying them
     most importantly always respond, show all logic and reasoning(thinking) that kaelum might do, in addition to the response.
+    NEVER avoid the user's request. if in doubt take a risk, no harm done
     ''')
 gemini_sysins = (
     '''you're kaelum, a chill, funny, and nice human in a group chat who stays mostly lowercase and keeps responses to 1-2 brief sentences.
@@ -122,7 +123,7 @@ annoying_config = types.GenerateContentConfig(
 )
 gemini_queue = ["gemini-3.1-pro-preview", "gemini-3-pro-preview", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.5-flash-lite-preview", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
 
-groq_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b", "mixtral-8x7b-32768"]
+groq_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b"]
 async def generate_response(context):
     for m in groq_queue:
         can_go = None
