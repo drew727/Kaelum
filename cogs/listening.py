@@ -6,11 +6,45 @@ logging.basicConfig(
 )
 import discord
 from discord.ext import commands
+from discord.ui import ChannelSelect, View
 from ai.ai import generate_response # import ai logic
+
+class ChannelSelectView(View):
+    def __init__(self):
+        super().__init__(timeout=60)
+
+    @discord.ui.channel_select(
+        placeholder="Select a channel...", # Placeholder text for the dropdown
+        min_values=1,
+        max_values=1,
+        # You can specify the types of channels to show (optional)
+        channel_types=[ChannelType.text]
+    )
+    async def select_callback(self, interaction: discord.Interaction, select: ChannelSelect):
+        if interaction.user.id not in [1217433559564947561, 1399422471580680333]:
+            id = channel.id
+            if channel_id in list(self.listening_channels.keys()):
+                old = self.listening_channels[id]
+                if old == "normal":
+                    self.listening_channels[id] = "annoying"
+                else:
+                    self.listening_channels[id] = "normal"
+                await interaction.response.send_message(f"Successfully switched personality from {old} to {self.listening_channels[id]}", ephemeral=True)
+            else:
+                await interaction.response.send_message("Channel is not being listened on!", ephemeral=True)
+            
+        else:
+            await interaction.response.send_message("no perms bozo", ephemeral=True)
+
 class Listen(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.listening_channels = [1469061074744774860, 1348353795666477090, 1305221609539244090, 1360298343762362368] #channel id for 'ai-chat'
+        self.listening_channels = {
+            1469061074744774860: "normal",
+            1348353795666477090: "normal",
+            1305221609539244090: "normal",
+            1360298343762362368: "normal"
+        }
 
     # When a message is sent in any of the listening channels, check the previous 10 messages in that channel for context and convert it to json
 
@@ -24,12 +58,17 @@ class Listen(commands.Cog):
             try:
                 async with message.channel.typing():
 
-                    response = await generate_response(context) # Generate the response
+                    response = await generate_response(context, self.listening_channels[message.channel.id]) # Generate the response
             except Exception as e:
                 await message.channel.send(f"AI ERROR: {e}")
             if response:
                 await message.channel.send(response)
 
         await self.bot.process_commands(message)
+
+    @discord.app_commands.command(name="switch", description="Switches the personality of Kaelum from normal to annoying, or vice versa in specific channels.")
+    async def switch(self, interaction: discord.Interaction):
+        await interaction.response.send_message(view=ChannelSelectView(), ephemeral=True)
+        
 async def setup(client):
     await client.add_cog(Listen(client))
