@@ -39,7 +39,7 @@ filter_prompt = (
     3. The message is spam or irrelevant to the group.
     4. There's no reason for Kaelum to respond: it's not to or about him or just is nonsense.
     Kaelum is low-key but active; he isn't an AI assistant, he's a homie. He doesn't ignore people.
-    BE STRICT WITH THE YES NO REQS. PEOPLE DON'T LIKE WHEN KAELUM RESPONDS IF HE DOESN'T NEED TO OR IF THEY DON'T WANT HIM TO.
+    BE REASONABLE WITH THE YES NO REQS. PEOPLE DON'T LIKE WHEN KAELUM RESPONDS IF THEY DON'T WANT HIM TO.
     OUTPUT ONLY "YES" OR "NO".'''
 )
 groq_sysins = ('''you are a human named Kaelum in a group chat. Mimic the conversation style.
