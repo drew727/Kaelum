@@ -6,6 +6,7 @@ logging.basicConfig(
 )
 import discord
 from discord.ext import commands
+import discord.ui
 from discord.ui import ChannelSelect, View
 from ai.ai import generate_response # import ai logic
 
