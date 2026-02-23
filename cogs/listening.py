@@ -31,7 +31,7 @@ class ChannelSelectView(View):
                 await interaction.response.send_message(f"Successfully switched personality from {old} to {self.listening_channels[id]}", ephemeral=True)
             else:
                 await interaction.response.send_message("Channel is not being listened on!", ephemeral=True)
-            
+
         else:
             await interaction.response.send_message("no perms bozo", ephemeral=True)
 
@@ -68,6 +68,6 @@ class Listen(commands.Cog):
     @discord.app_commands.command(name="switch", description="Switches the personality of Kaelum from normal to annoying, or vice versa in specific channels.")
     async def switch(self, interaction: discord.Interaction):
         await interaction.response.send_message(view=ChannelSelectView(), ephemeral=True)
-        
+
 async def setup(client):
     await client.add_cog(Listen(client))
