@@ -23,7 +23,7 @@ class ChannelSelectView(discord.ui.View):
     )
     async def select_callback(self, interaction: discord.Interaction, select: ChannelSelect):
         if interaction.user.id in [1217433559564947561, 1399422471580680333]:
-            id = select.values[0]
+            channel_id = select.values[0]
             if channel_id in list(self.listening_channels.keys()):
                 old = self.listening_channels[id]
                 if old == "normal":
