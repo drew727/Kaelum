@@ -203,7 +203,7 @@ async def generate_response(context, personality):
                         model= m,
                         messages=[
                             {"role": "system", "content": groq_sum},
-                            {"role": "user", "content": f"Kaelum's thoughts: {thoughts} \n Kaelum's response"}
+                            {"role": "user", "content": f"Kaelum's thoughts: {thoughts}, context: {context} only respond to messages directly talking to you \n Kaelum's response:"}
                         ],
                         temperature=0.4,
                         presence_penalty=1.2,
