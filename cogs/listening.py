@@ -10,15 +10,16 @@ import discord.ui
 from discord.ui import ChannelSelect, View
 from ai.ai import generate_response # import ai logic
 
-class ChannelSelectView(View):
+class ChannelSelectView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=60)
 
-    @discord.ui.channel_select(
+    @discord.ui.select(
+        cls=discord.ui.ChannelSelect,
         placeholder="Select a channel...",
         min_values=1,
         max_values=1,
-        channel_types=[ChannelType.text]
+        channel_types=[discord.ChannelType.text]
     )
     async def select_callback(self, interaction: discord.Interaction, select: ChannelSelect):
         if interaction.user.id not in [1217433559564947561, 1399422471580680333]:
