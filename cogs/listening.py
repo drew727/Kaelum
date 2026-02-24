@@ -11,9 +11,9 @@ from discord.ui import ChannelSelect, View
 from ai.ai import generate_response # import ai logic
 
 class ChannelSelectView(discord.ui.View):
-    def __init__(self):
+    def __init__(self, listening_channels):
         super().__init__(timeout=60)
-
+        self.listening_channels = listening_channels
     @discord.ui.select(
         cls=discord.ui.ChannelSelect,
         placeholder="Select a channel...",
@@ -23,7 +23,7 @@ class ChannelSelectView(discord.ui.View):
     )
     async def select_callback(self, interaction: discord.Interaction, select: ChannelSelect):
         if interaction.user.id in [1217433559564947561, 1399422471580680333]:
-            id = int(select.values[0])
+            id = select.values[0].id
             if id in list(self.listening_channels.keys()):
                 old = self.listening_channels[id]
                 if old == "normal":
@@ -69,7 +69,8 @@ class Listen(commands.Cog):
 
     @discord.app_commands.command(name="switch", description="Switches the personality of Kaelum from normal to annoying, or vice versa in specific channels.")
     async def switch(self, interaction: discord.Interaction):
-        await interaction.response.send_message(view=ChannelSelectView(), ephemeral=True)
+        view = ChannelSelectView(self.listening_channels)
+        await interaction.response.send_message(view=view, ephemeral=True)
 
 async def setup(client):
     await client.add_cog(Listen(client))
