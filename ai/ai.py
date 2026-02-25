@@ -246,39 +246,26 @@ async def annoying_response(context):
             except Exception as e:
                 error = str(e)
                 continue
-        return f"MODEL ERROR: {error}"
-    except Exception as e:
-            for m in groq_queue:
-                try:
-                    output = await client.chat.completions.create(
+        for m in groq_queue:
+            try:
+                output = await client.chat.completions.create(
                         model= m,
                         messages=[
-                            {"role": "system", "content": groq_sysins},
-                            {"role": "user", "content": f"context: {context} \n Kaelum: provide all logic and reasoning in your response; think out loud"}
+                            {"role": "system", "content": annoying_sysins},
+                            {"role": "user", "content": f"context: {context} \n Kaelum: "}
                         ],
                         temperature=0.4,
                         presence_penalty=1.2,
                         frequency_penalty=1.2,
                         stop=["User D:", "Drew72272:", "CosmicShrimp:"]
-                    )
-                    thoughts = output.choices[0].message.content.strip()
-                    final_output = await client.chat.completions.create(
-                        model= m,
-                        messages=[
-                            {"role": "system", "content": groq_sum},
-                            {"role": "user", "content": f"Kaelum's thoughts: {thoughts}, context: {context} only respond to messages directly talking to you \n Kaelum's response:"}
-                        ],
-                        temperature=0.4,
-                        presence_penalty=1.2,
-                        frequency_penalty=1.2,
-                        stop=["User D:", "Drew72272:", "CosmicShrimp:"]
-                    )
-                    response = final_output.choices[0].message.content.strip()
-                    groq_queue.pop(groq_queue.index(m))
-                    groq_queue.insert(0, m)
+                )
 
-                    return response
-                except Exception as e:
-                    error = str(e)
-                    continue
+                response = output.choices[0].message.content.strip()
+                groq_queue.pop(groq_queue.index(m))
+                groq_queue.insert(0, m)
+
+                return response
+            except Exception as e:
+                error = str(e)
+                continue
     return f"ai error {e}"
