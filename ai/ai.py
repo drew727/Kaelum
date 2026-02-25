@@ -146,7 +146,7 @@ annoying_config = types.GenerateContentConfig(
 gemini_queue = ["gemini-3.1-pro-preview", "gemini-3-pro-preview", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.5-flash-lite-preview", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
 
 groq_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b"]
-async def generate_response(context, personality):
+async def generate_response(context, personality="normal"):
     if personality == "normal":
       config = norm_config
     else:
