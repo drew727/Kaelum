@@ -8,12 +8,7 @@ import discord
 from discord.ext import commands
 import discord.ui
 from discord.ui import ChannelSelect, View
-<<<<<<< HEAD
 from ai.ai import generate_response, annoying_response # import ai logic
-
-=======
-from ai.ai import generate_response, annoying_response
->>>>>>> 59ef38d (Updated)
 class ChannelSelectView(discord.ui.View):
     def __init__(self, listening_channels):
         super().__init__(timeout=60)
@@ -30,10 +25,10 @@ class ChannelSelectView(discord.ui.View):
             id = select.values[0].id
             if id in list(self.listening_channels.keys()):
                 old = self.listening_channels[id]
-                if old == "normal":
-                    self.listening_channels[id] = "annoying"
+                if old == generate_response:
+                    self.listening_channels[id] = annoying_response
                 else:
-                    self.listening_channels[id] = "normal"
+                    self.listening_channels[id] = generate_response
                 await interaction.response.send_message(f"Successfully switched personality from {old} to {self.listening_channels[id]}", ephemeral=True)
             else:
                 await interaction.response.send_message("Channel is not being listened on!", ephemeral=True)
@@ -45,10 +40,10 @@ class Listen(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.listening_channels = {
-            1469061074744774860: "normal",
-            1348353795666477090: "normal",
-            1305221609539244090: "normal",
-            1360298343762362368: "normal"
+            1469061074744774860: generate_response,
+            1348353795666477090: generate_response,
+            1305221609539244090: generate_response,
+            1360298343762362368: generate_response
         }
 
     # When a message is sent in any of the listening channels, check the previous 7 messages in that channel for context and convert it to json
@@ -63,10 +58,8 @@ class Listen(commands.Cog):
             try:
                 async with message.channel.typing():
 
-                    if self.listening_channels[message.channel.id] == "normal":
-                        response = await generate_response(context, self.listening_channels[message.channel.id]) # Generate the response
-                    else:
-                        await annoying_response(context)
+                    response = await self.listening_channels[message.channel.id](content)# Generate the response
+
             except Exception as e:
                 await message.channel.send(f"AI ERROR: {e}")
             if response:
