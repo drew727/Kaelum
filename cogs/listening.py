@@ -9,7 +9,7 @@ from discord.ext import commands
 import discord.ui
 from discord.ui import ChannelSelect, View
 from ai.ai import generate_response # import ai logic
-
+from ai.ai import annoying_response
 class ChannelSelectView(discord.ui.View):
     def __init__(self, listening_channels):
         super().__init__(timeout=60)
