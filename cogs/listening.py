@@ -59,7 +59,10 @@ class Listen(commands.Cog):
             try:
                 async with message.channel.typing():
 
-                    response = await generate_response(context, self.listening_channels[message.channel.id]) # Generate the response
+                    if self.listening_channels[message.channel.id] == "normal":
+                        response = await generate_response(context, self.listening_channels[message.channel.id]) # Generate the response
+                    else:
+                        await annoying_response(context)
             except Exception as e:
                 await message.channel.send(f"AI ERROR: {e}")
             if response:
