@@ -268,4 +268,5 @@ async def annoying_response(context):
             except Exception as e:
                 error = str(e)
                 continue
-    return f"ai error {e}"
+    except Exception as e:
+        return f"ai error {e}"
