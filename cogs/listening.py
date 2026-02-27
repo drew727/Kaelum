@@ -51,21 +51,24 @@ class Listen(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         print("processing message")
-        if message.channel.id in self.listening_channels and not message.author.bot:
-            messages = [msg async for msg in message.channel.history(limit=7)]
-            context = "\n".join(f"{msg.author.name}: {msg.content}" for msg in reversed(messages) if msg.content)
-
-            try:
-                async with message.channel.typing():
-
-                    response = await self.listening_channels[message.channel.id](context)# Generate the response
-
-            except Exception as e:
-                await message.channel.send(f"AI ERROR: {e}")
-            if response:
-                await message.channel.send(response)
-
-        await self.bot.process_commands(message)
+        if (message.content).split("k.echo")[0] == "" and message.author.id in [1217433559564947561, 1399422471580680333]:
+            await message.channel.send(message.content.split("k.echo")[1])
+        else:
+            if message.channel.id in self.listening_channels and not message.author.bot:
+                messages = [msg async for msg in message.channel.history(limit=7)]
+                context = "\n".join(f"{msg.author.name}: {msg.content}" for msg in reversed(messages) if msg.content)
+    
+                try:
+                    async with message.channel.typing():
+    
+                        response = await self.listening_channels[message.channel.id](context)# Generate the response
+    
+                except Exception as e:
+                    await message.channel.send(f"AI ERROR: {e}")
+                if response:
+                    await message.channel.send(response)
+    
+            await self.bot.process_commands(message)
 
     @discord.app_commands.command(name="switch", description="Switches the personality of Kaelum from normal to annoying, or vice versa in specific channels.")
     async def switch(self, interaction: discord.Interaction):
