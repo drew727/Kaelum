@@ -29,7 +29,7 @@ class ChannelSelectView(discord.ui.View):
                     self.listening_channels[id] = annoying_response
                 else:
                     self.listening_channels[id] = generate_response
-                await interaction.response.send_message(f"Successfully switched personality from {old} to {self.listening_channels[id]}", ephemeral=True)
+                await interaction.response.send_message(f"Successfully switched personality from {old.__name__} to {self.listening_channels[id].__name__}", ephemeral=True)
             else:
                 await interaction.response.send_message("Channel is not being listened on!", ephemeral=True)
 
