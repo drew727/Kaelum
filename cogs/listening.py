@@ -55,9 +55,9 @@ class Listen(commands.Cog):
             await message.channel.send(message.content.split("k.echo")[1])
         else:
             if message.channel.id in self.listening_channels and not message.author.bot:
-                messages = [msg async for msg in message.channel.history(limit=15)]
+                messages = [msg async for msg in message.channel.history(limit=10)]
                 memory_context = "\n".join(f"{m.author.name}: {m.content}" for m in messages if m.content)
-                immediate_context = "\n".join(f"{m.author.name}: {m.content}" for m in messages[10:] if m.content)
+                immediate_context = "\n".join(f"{m.author.name}: {m.content}" for m in messages[:5] if m.content)
 
                 try:
                     async with message.channel.typing():
