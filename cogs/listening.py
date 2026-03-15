@@ -85,5 +85,24 @@ class Listen(commands.Cog):
         view = ChannelSelectView(self.listening_channels)
         await interaction.response.send_message(view=view, ephemeral=True)
 
+    @discord.app_commands.command(name="listen", description="Begins listening in the current channel.")
+    async def listen(self, interaction: discord.Interaction):
+        channel_id = interaction.channel.id
+        if channel_id in self.listening_channels:
+            await interaction.response.send_message("Already listening in current channel!", ephemeral=True)
+        else:
+            self.listening_channels[channel_id] = generate_response
+            await interaction.response.send_message(f"Began listening in #{interaction.channel.name}.", ephemeral=True)
+
+    @discord.app_commands.command(name="purge", description="Stops listening in the current channel.")
+    async def purge(self, interaction: discord.Interaction):
+        channel_id = interaction.channel.id
+        if channel_id in self.listening_channels:
+            await interaction.response.send_message("Not already listening in current channel!", ephemeral=True)
+        else:
+            del self.listening_channels[channel_id]
+            await interaction.response.send_message(f"Stopped listening in #{interaction.channel.name}.", ephemeral=True)
+
+
 async def setup(client):
     await client.add_cog(Listen(client))
