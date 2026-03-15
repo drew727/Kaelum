@@ -8,7 +8,7 @@ import random
 from openai import AsyncOpenAI
 from google import genai
 from google.genai import types
-from system_instructions import filter_prompt, groq_sysins, gemini_sysins, annoying_sysins, summary_sysins
+from ai.system_instructions import filter_prompt, groq_sysins, gemini_sysins, annoying_sysins, summary_sysins
 #initialize apis
 client = AsyncOpenAI(
   base_url="https://api.groq.com/openai/v1",
