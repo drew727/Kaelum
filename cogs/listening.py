@@ -66,8 +66,8 @@ class Listen(commands.Cog):
                             redacted_response = response.replace("@here", "[REDACTED MASS PING]")
                             redacted_response2 = redacted_response.replace("@everyone", "[REDACTED MASS PING]")
                         else:
-                            redacted_response = "<@1217433559564947561> smth popped off again"
-                            redacted_response2 = "<@1399422471580680333> smth broke again fix generate_response()"
+                            redacted_response = None
+                            redacted_response2 = None
     
                 except Exception as e:
                     await message.channel.send(f"AI ERROR: {e}")
