@@ -57,10 +57,10 @@ class Listen(commands.Cog):
             if message.channel.id in self.listening_channels and not message.author.bot:
                 messages = [msg async for msg in message.channel.history(limit=7)]
                 context = "\n".join(f"{msg.author.name}: {msg.content}" for msg in reversed(messages) if msg.content)
-    
+
                 try:
                     async with message.channel.typing():
-    
+
                         response = await self.listening_channels[message.channel.id](context)# Generate the response
                         if response:
                             redacted_response = response.replace("@here", "[REDACTED MASS PING]")
@@ -68,7 +68,7 @@ class Listen(commands.Cog):
                         else:
                             redacted_response = None
                             redacted_response2 = None
-    
+
                 except Exception as e:
                     await message.channel.send(f"AI ERROR: {e}")
                 if redacted_response2:
@@ -77,7 +77,7 @@ class Listen(commands.Cog):
                     await message.channel.send(redacted_response)
                 elif response:
                     await message.channel.send(response)
-    
+
             await self.bot.process_commands(message)
 
     @discord.app_commands.command(name="switch", description="Switches the personality of Kaelum from normal to annoying, or vice versa in specific channels.")
@@ -97,7 +97,7 @@ class Listen(commands.Cog):
     @discord.app_commands.command(name="purge", description="Stops listening in the current channel.")
     async def purge(self, interaction: discord.Interaction):
         channel_id = interaction.channel.id
-        if channel_id in self.listening_channels:
+        if channel_id not in self.listening_channels:
             await interaction.response.send_message("Not already listening in current channel!", ephemeral=True)
         else:
             del self.listening_channels[channel_id]
