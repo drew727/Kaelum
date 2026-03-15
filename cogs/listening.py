@@ -56,6 +56,7 @@ class Listen(commands.Cog):
         else:
             if message.channel.id in self.listening_channels and not message.author.bot:
                 messages = [msg async for msg in message.channel.history(limit=10)]
+                messages.reverse()
                 memory_context = "\n".join(f"{m.author.name}: {m.content}" for m in messages if m.content)
                 immediate_context = "\n".join(f"{m.author.name}: {m.content}" for m in messages[5:] if m.content)
 
