@@ -57,7 +57,7 @@ async def generate_response(memory_context, immediate_context, personality="norm
             #handle memory and recursive summarization, always update his memory even if he doesn't respond
             summary = await client.chat.completions.create(model=m, messages=[
                 {"role": "system", "content": summary_sysins},
-                {"role": "user", "content": f"You will be given Kaelum's current memory and the last few messages. summarize this, and ensure the summary is shorter than the input. OVERALL MEMORY: {memory}, CONTEXT: {memory_context}"}],
+                {"role": "user", "content": f"You will be given Kaelum's current memory and the last few messages. summarize this, and ensure the summary is shorter than the input. OVERALL MEMORY (dont focus too much on this, just further summarize and shorten it, really js some context): {memory}, RECENT MESSAGES(this is what kaelum needs to know, you can focus onthis): {memory_context}"}],
                     temperature=0.2)
             memory = summary.choices[0].message.content.strip()
             print(memory)
