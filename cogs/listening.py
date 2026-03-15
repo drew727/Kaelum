@@ -55,13 +55,14 @@ class Listen(commands.Cog):
             await message.channel.send(message.content.split("k.echo")[1])
         else:
             if message.channel.id in self.listening_channels and not message.author.bot:
-                messages = [msg async for msg in message.channel.history(limit=7)]
-                context = "\n".join(f"{msg.author.name}: {msg.content}" for msg in reversed(messages) if msg.content)
+                messages = [msg async for msg in message.channel.history(limit=15)]
+                memory_context = "\n".join(f"{m.author.name}: {m.content}" for m in messages if m.content)
+                immediate_context = "\n".join(f"{m.author.name}: {m.content}" for m in messages[-5:] if m.content)
 
                 try:
                     async with message.channel.typing():
 
-                        response = await self.listening_channels[message.channel.id](context)# Generate the response
+                        response = await self.listening_channels[message.channel.id](memory_context, immediate_context)# Generate the response
                         if response:
                             redacted_response = response.replace("@here", "[REDACTED MASS PING]")
                             redacted_response2 = redacted_response.replace("@everyone", "[REDACTED MASS PING]")
