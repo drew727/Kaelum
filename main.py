@@ -1,9 +1,8 @@
-
-# main.py
 import os
 import discord
 from discord.ext import commands
 import threading
+import json # Added import
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 class Client(commands.Bot):
@@ -22,18 +21,22 @@ class Client(commands.Bot):
                 await client.load_extension(f"cogs.{filename[:-3]}")
         await client.tree.sync()
         print("Loaded cogs")
+
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"Bot is running!")
+        # Modified to load summary from the JSON file so we can debug memory
+        with open("ai/kaelum_memory.json", "r") as f:
+            data = json.load(f)
+        self.wfile.write(data["summary"].encode())
 
 def run_server():
     port = int(os.environ.get("PORT", 5000))
     server = HTTPServer(("0.0.0.0", port), Handler)
     server.serve_forever()
-client = Client()
 
+client = Client()
 
 threading.Thread(target=run_server, daemon=True).start()
 client.run(os.environ['DISCORD_TOKEN'])
