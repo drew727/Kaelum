@@ -34,9 +34,9 @@ def run_server():
     server.serve_forever()
 client = Client()
 
-@client.command(name="ping", description="Checks bot ping.")
+@client.command(name="check", description="Checks bot ping.")
 async def ping(ctx):
-    await ctx.send(f"Pong! ({round(client.latency * 1000)}ms)")
+    await ctx.send(f"I'm here! ({round(client.latency * 1000)}ms)")
 
 client.add_command(ping)
 

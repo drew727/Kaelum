@@ -59,6 +59,7 @@ async def generate_response(memory_context, immediate_context, personality="norm
                 {"role": "user", "content": f"You will be given Kaelum's current memory and the last few messages. summarize this, and ensure the summary is shorter than the input. OVERALL MEMORY: {loaded_memory}, CONTEXT: {memory_context}"}],
                     temperature=0.2)
             memory = summary.choices[0].message.content.strip()
+            print(memory)
             #save new memory
             metadata["summary"] = memory
             async with aiofiles.open('kaelum_memory.json', mode='w') as f:
