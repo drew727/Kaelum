@@ -4,7 +4,8 @@ from discord.ext import commands
 import threading
 import json # Added import
 from http.server import HTTPServer, BaseHTTPRequestHandler
-
+from dotenv import load_dotenv
+load_dotenv()
 class Client(commands.Bot):
     def __init__(self):
         super().__init__(

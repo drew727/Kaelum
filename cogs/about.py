@@ -8,7 +8,7 @@ class About(commands.Cog):
 
     @discord.app_commands.command(name="about", description="About this bot")
     async def about(self, interaction: discord.Interaction):
-        emb = discord.Embed(color=discord.Color.blue(), title="About this bot!", description="This bot was made by cosmic.shrimp and drew2772. The goal of this project was to train an artifical intelligence solely on human interaction for a more conversationally fluent bot.")
+        emb = discord.Embed(color=discord.Color.blue(), title="About this bot!", description="This bot was made by cosmic.shrimp and drew2772. The goal of this project was to allow an artifical intelligence to learn from human interaction to create a more conversationally fluent bot.")
         await interaction.response.send_message(embed=emb)
 
 async def setup(client):
