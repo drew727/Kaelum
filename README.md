@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/drew727/Kaelum/actions/workflows/ci.yml/badge.svg)](https://github.com/drew727/Kaelum/actions/workflows/ci.yml)
 
-Kaelum is a Discord bot built around short, conversational group-chat replies. It listens in selected channels, decides whether it should jump in, and generates responses through external LLM providers while keeping a small running summary of chat context.
+Kaelum is an adaptive Discord bot built around short, conversational group-chat replies, mimicking human conversation. It listens in selected channels, decides whether it should jump in, and generates responses through external LLM providers while keeping a small running summary of chat context.
 
 ## Features
 
