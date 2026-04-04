@@ -85,7 +85,7 @@ class Listen(commands.Cog):
                 elif redacted_response:
                     await message.channel.send(redacted_response)
                 elif response:
-                    await message.channel.send(response)
+                    await message.channel.send(response + "::")
 
             await self.bot.process_commands(message)
 
