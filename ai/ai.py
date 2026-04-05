@@ -167,7 +167,7 @@ async def annoying_response(memory_context, context):
                             {"role": "system", "content": annoying_sysins},
                             {"role": "user", "content": f"context: {context} \n Kaelum: "}
                         ],
-                        temperature=0.4,
+                        temperature=0.95,
                         presence_penalty=1.2,
                         frequency_penalty=1.2,
                         stop=["User D:", "Drew72272:", "CosmicShrimp:"]
