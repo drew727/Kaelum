@@ -133,7 +133,7 @@ What would Kaelum say next?
                     groq_queue.pop(groq_queue.index(m))
                     groq_queue.insert(0, m)
 
-                    return response + ";;"
+                    return response
                 except Exception as e:
                     error = str(e)
                     continue
