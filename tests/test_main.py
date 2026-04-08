@@ -10,6 +10,9 @@ dotenv_module = types.ModuleType("dotenv")
 dotenv_module.load_dotenv = lambda: None
 sys.modules.setdefault("dotenv", dotenv_module)
 
+membrane_module = types.ModuleType("membrane")
+sys.modules.setdefault("membrane", membrane_module)
+
 import main
 
 

@@ -81,6 +81,26 @@ def stub_ai_dependencies():
     genai_module.types = genai_types_module
     google_module.genai = genai_module
 
+    membrane_module = types.ModuleType("membrane")
+
+    class DummyMembraneClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    class DummySensitivity:
+        pass
+
+    class DummyTrustContext:
+        pass
+
+    class DummyMemoryType:
+        pass
+
+    membrane_module.MembraneClient = DummyMembraneClient
+    membrane_module.Sensitivity = DummySensitivity
+    membrane_module.TrustContext = DummyTrustContext
+    membrane_module.MemoryType = DummyMemoryType
+
     requests_module = types.ModuleType("requests")
     bs4_module = types.ModuleType("bs4")
     bs4_module.BeautifulSoup = object
@@ -92,6 +112,7 @@ def stub_ai_dependencies():
     sys.modules["google"] = google_module
     sys.modules["google.genai"] = genai_module
     sys.modules["google.genai.types"] = genai_types_module
+    sys.modules["membrane"] = membrane_module
     sys.modules["requests"] = requests_module
     sys.modules["bs4"] = bs4_module
     sys.modules["numpy"] = numpy_module
