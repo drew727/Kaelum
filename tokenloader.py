@@ -13,3 +13,6 @@ class TokenStore():
     self.tokens.remove(self.current_token)
     self.current_token = self.tokens[0]
     return self.current_token
+    
+  def current_token(self):
+    return self.current_token
