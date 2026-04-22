@@ -13,6 +13,7 @@ class ChannelSelectView(discord.ui.View):
     def __init__(self, listening_channels):
         super().__init__(timeout=60)
         self.listening_channels = listening_channels
+        self.admins = [1217433559564947561, 1399422471580680333, 775741085493755994]
     @discord.ui.select(
         cls=discord.ui.ChannelSelect,
         placeholder="Select a channel...",
@@ -21,7 +22,7 @@ class ChannelSelectView(discord.ui.View):
         channel_types=[discord.ChannelType.text]
     )
     async def select_callback(self, interaction: discord.Interaction, select: ChannelSelect):
-        if interaction.user.id in [1217433559564947561, 1399422471580680333]:
+        if interaction.user.id in self.admins:
             id = select.values[0].id
             if id in list(self.listening_channels.keys()):
                 old = self.listening_channels[id]
@@ -46,13 +47,14 @@ class Listen(commands.Cog):
             1360298343762362368: generate_response
         }
         self.response_records = {}
+        self.admins = [1217433559564947561, 1399422471580680333, 775741085493755994]
 
     # When a message is sent in any of the listening channels, check the previous 7 messages in that channel for context and convert it to json
 
     @commands.Cog.listener()
     async def on_message(self, message):
         print("processing message")
-        if "k.echo" in message.content and message.author.id in [1217433559564947561, 1399422471580680333]:
+        if "k.echo" in message.content and message.author.id in self.admins:
             await message.channel.send(message.content.split("k.echo")[1])
         else:
             if message.channel.id in self.listening_channels and not message.author.bot:
