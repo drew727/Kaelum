@@ -9,11 +9,14 @@ from discord.ext import commands
 import discord.ui
 from discord.ui import ChannelSelect, View
 from ai.ai import generate_response, annoying_response # import ai logic
+from cogs.constants import admins
+
 class ChannelSelectView(discord.ui.View):
     def __init__(self, listening_channels):
         super().__init__(timeout=60)
         self.listening_channels = listening_channels
-        self.admins = [1217433559564947561, 1399422471580680333, 775741085493755994]
+        self.admins = admins
+        
     @discord.ui.select(
         cls=discord.ui.ChannelSelect,
         placeholder="Select a channel...",
@@ -47,7 +50,7 @@ class Listen(commands.Cog):
             1360298343762362368: generate_response
         }
         self.response_records = {}
-        self.admins = [1217433559564947561, 1399422471580680333, 775741085493755994]
+        self.admins = admins
 
     # When a message is sent in any of the listening channels, check the previous 7 messages in that channel for context and convert it to json
 
