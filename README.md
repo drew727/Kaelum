@@ -51,8 +51,11 @@ Kaelum currently exposes these slash commands:
 - `/listen`: Start listening in the current channel
 - `/purge`: Stop listening in the current channel
 - `/switch`: Toggle the configured personality for a selected channel
+- `/console`: Outputs the current terminal history (Developer only, access to this command is hardcoded)
+- `/execute`: Executes a command in the terminal of the hosting device (Developer only, access to this command is hardcoded)
 
 `/listen` and `/purge` require the `Manage Channels` permission.
+For `/console` and `/execute` to function properly, `main.py` must be run with root permissions.
 
 ## Testing
 
