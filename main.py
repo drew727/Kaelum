@@ -23,8 +23,12 @@ class Client(commands.Bot):
         cogs_folder = os.path.join(BASE_DIR, "cogs")
         for filename in os.listdir(cogs_folder):
             print(filename)
-            if filename.endswith(".py"):
-                await self.load_extension(f"cogs.{filename[:-3]}")
+            if not filename.endswith(".py"):
+                continue
+            if filename in ("constants.py", "__init__.py"):
+                continue
+            await self.load_extension(f"cogs.{filename[:-3]}")
+            
         await self.tree.sync()
         print("Loaded cogs")
 
@@ -35,7 +39,7 @@ class Handler(BaseHTTPRequestHandler):
         # Modified to load summary from the JSON file so we can debug memory
         with open(MEMORY_FILE, "r") as f:
             data = json.load(f)
-        self.wfile.write(data["summary"].encode())
+        self.wfile.write(data["normal_summary"].encode())
 
 def run_server():
     port = int(os.environ.get("PORT", 5000))

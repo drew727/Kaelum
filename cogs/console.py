@@ -1,7 +1,10 @@
 import discord
 from discord.ext import commands
-import readline
-from cogs.constant import admins
+try:
+    import readline
+except Exception:
+    readline = None
+from cogs.constants import admins
 import os
 
 class Console(commands.Cog):

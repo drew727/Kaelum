@@ -8,11 +8,15 @@ import random
 from openai import AsyncOpenAI
 from google import genai
 from google.genai import types
-from .system_instructions import filter_prompt, groq_sysins, gemini_sysins, annoying_sysins, summary_sysins
+from .system_instructions import filter_prompt, groq_sysins, gemini_sysins, annoying_sysins, summary_sysins, san_diego_sysins
 from dotenv import load_dotenv
-from membrane import MembraneClient, Sensitivity, TrustContext, MemoryType # import membrane
+from membrane import MembraneClient, Sensitivity, TrustContext, MemoryType
+import sys
+from pathlib import Path
+import logging
 
-#load env vars
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+# load env vars
 load_dotenv()
 
 #initialize membrane client
@@ -44,8 +48,8 @@ file_path = os.path.join(base_path, 'kaelum_memory.json')
 gemini_queue = ["gemini-3.1-pro-preview", "gemini-3-pro-preview", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.5-flash-lite-preview", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
 groq_queue = ["groq/compound-mini", "groq/compound", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b"]
 
-async def generate_response(memory_context, immediate_context, personality="normal", user_id=None, user_name=None):
-    # remember IMMEDIATE CONTEXT IS ONLY 1, MOMOR IS ONLY 10
+async def membrane_generate_response(memory_context, immediate_context, personality="normal", user_id=None, user_name=None):
+    # remember IMMEDIATE CONTEXT IS ONLY 1, MEMORY_CONTEXT IS ONLY 10
 
     for m in groq_queue:
         can_go = None
@@ -81,6 +85,7 @@ async def generate_response(memory_context, immediate_context, personality="norm
         except Exception as e:
             continue
     error = "All Models Hit Rate Limits"
+    print(can_go)
     if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
         #generate query
         query = None
@@ -97,7 +102,9 @@ async def generate_response(memory_context, immediate_context, personality="norm
                     max_tokens=20
                 )
                 query = task_descriptor.choices[0].message.content.strip()
+                print(query)
                 break
+
             except Exception as e:
                 error = str(e)
                 continue
@@ -116,7 +123,9 @@ async def generate_response(memory_context, immediate_context, personality="norm
                     )
                     gemini_queue.pop(gemini_queue.index(m))
                     gemini_queue.insert(0, m)
+                    print(response.text)
                     return response.text
+
                 except Exception as e:
                     error = str(e)
                     continue
@@ -142,8 +151,10 @@ async def generate_response(memory_context, immediate_context, personality="norm
                     response = final_output.choices[0].message.content.strip()
                     groq_queue.pop(groq_queue.index(m))
                     groq_queue.insert(0, m)
-                    #write memory i, record.idnto membrane now
+                    #write memory record into membrane now
+                    print("response:\n" + final_output.choices[0].message.content.strip())
                     return response
+                    
                 except Exception as e:
                     error = str(e)
                     continue
@@ -152,13 +163,13 @@ async def generate_response(memory_context, immediate_context, personality="norm
         return
     return None
 
-#original logic for fallback just in case membrane fails
+#original logic
 async def generate_response(memory_context, immediate_context, personality="normal"):
     #load Kaleum's memory
     async with aiofiles.open(file_path, mode='r') as f:
         contents = await f.read()
         metadata = json.loads(contents)
-    memory = metadata["summary"]
+    memory = metadata["normal_summary"]
     #handle metadata for Kaelum
     for m in groq_queue:
         can_go = None
@@ -197,7 +208,7 @@ Update Kaelum's memory summary.
             memory = summary.choices[0].message.content.strip()
             print(memory)
             #save new memory
-            metadata["summary"] = memory
+            metadata["normal_summary"] = memory
             async with aiofiles.open(file_path, mode='w') as f:
                 json_string = json.dumps(metadata, indent=4)
                 await f.write(json_string)
@@ -299,4 +310,108 @@ async def annoying_response(memory_context, context, user_id=None, user_name=Non
                 error = str(e)
                 continue
     except Exception as e:
+        logging.exception(e)
         return f"ai error {e}"
+
+async def san_diego_response(memory_context, immediate_context, personality="normal"):
+    async with aiofiles.open(file_path, mode='r') as f:
+        contents = await f.read()
+        metadata = json.loads(contents)
+    memory = metadata["san_diego_summary"]
+    #handle metadata for Kaelum
+    for m in groq_queue:
+        can_go = None
+        try:
+            #decide whether kaleum responds
+            can_go = await client.chat.completions.create(
+                model=m,
+                messages=[
+                    {"role": "system", "content": filter_prompt},
+                    {"role": "user", "content": f"""
+Previous memory:
+{memory}
+
+New messages:
+{memory_context}
+
+Should Kaelum respond?
+"""}
+                ],
+                 temperature=0.1,
+                 max_tokens=3
+            )
+            #handle memory and recursive summarization, always update his memory even if he doesn't respond
+            summary = await client.chat.completions.create(model=m, messages=[
+                {"role": "system", "content": summary_sysins},
+                {"role": "user", "content": f"""
+Previous memory:
+{memory}
+
+New messages:
+{memory_context}
+
+Update Kaelum's memory summary.
+"""}],
+                    temperature=1.5)
+            memory = summary.choices[0].message.content.strip()
+            print(memory)
+            #save new memory
+            metadata["san_diego_summary"] = memory
+            async with aiofiles.open(file_path, mode='w') as f:
+                json_string = json.dumps(metadata, indent=4)
+                await f.write(json_string)
+            if can_go != None:
+                groq_queue.pop(groq_queue.index(m))
+                groq_queue.insert(0, m)
+                break
+        except Exception as e:
+            continue
+    error = "All Models Hit Rate Limits"
+    if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
+        try:
+            for m in gemini_queue:
+                try:
+                    response = await gemini_client.aio.models.generate_content(
+                        model=m,
+                        contents=f"context: {memory_context} \nKaelum: ",
+                        config=norm_config,
+                    )
+                    gemini_queue.pop(gemini_queue.index(m))
+                    gemini_queue.insert(0, m)
+                    return response.text
+                except Exception as e:
+                    error = str(e)
+                    continue
+            raise Exception("All Gemini models failed")
+        except Exception as e:
+            for m in groq_queue:
+                try:
+                    final_output = await client.chat.completions.create(
+                        model= m,
+                        messages=[
+                            {"role": "system", "content": san_diego_sysins},
+                            {"role": "user", "content": f"""
+Conversation summary:
+{memory}
+
+Recent messages:
+{immediate_context}
+
+What would Kaelum say next?
+"""}
+                        ],
+                        temperature=1.5,
+                        stop=["@everyone", "nigg"]
+                    )
+                    response = final_output.choices[0].message.content.strip()
+                    groq_queue.pop(groq_queue.index(m))
+                    groq_queue.insert(0, m)
+
+                    return response
+                except Exception as e:
+                    error = str(e)
+                    continue
+            return f"MODEL ERROR: {error}"
+    else:
+        return
+    return None

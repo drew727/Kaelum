@@ -1,5 +1,9 @@
 import logging
 import asyncio
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
@@ -8,7 +12,7 @@ import discord
 from discord.ext import commands
 import discord.ui
 from discord.ui import ChannelSelect, View
-from ai.ai import generate_response, annoying_response # import ai logic
+from ai.ai import generate_response, annoying_response, san_diego_response  # import ai logic
 from cogs.constants import admins
 
 class ChannelSelectView(discord.ui.View):
@@ -28,18 +32,41 @@ class ChannelSelectView(discord.ui.View):
         if interaction.user.id in self.admins:
             id = select.values[0].id
             if id in list(self.listening_channels.keys()):
-                old = self.listening_channels[id]
-                if old == generate_response:
-                    self.listening_channels[id] = annoying_response
-                else:
-                    self.listening_channels[id] = generate_response
-                await interaction.response.send_message(f"Successfully switched personality from {old.__name__} to {self.listening_channels[id].__name__}", ephemeral=True)
+                await interaction.response.send_message(
+                    "Now choose a personality.",
+                    view=PersonalitySelectView(self.listening_channels, id),
+                    ephemeral=True,
+            )
             else:
                 await interaction.response.send_message("Channel is not being listened on!", ephemeral=True)
-
         else:
-            await interaction.response.send_message("no perms bozo", ephemeral=True)
-
+            await interaction.response.send_message("no perms, not an admin", ephemeral=True)
+class PersonalitySelectView(discord.ui.View):
+    def __init__(self, listening_channels, id):
+        super().__init__(timeout=60)
+        self.listening_channels = listening_channels
+        self.id = id
+        self.admins = admins
+    @discord.ui.select(
+        placeholder="Select the response mode...",
+        min_values=1,
+        max_values=1,
+        options=[
+            discord.SelectOption(label="Normal", value="normal"),
+            discord.SelectOption(label="Annoying", value="annoying"),
+            discord.SelectOption(label="San Diego", value="san diego"),
+        ]
+    )
+    async def select_personality(self, interaction, select):
+        old = self.listening_channels[self.id]
+        choices = {
+            "normal": generate_response,
+            "annoying": annoying_response,
+            "san diego": san_diego_response,
+        }
+        handler = choices[select.values[0]]
+        self.listening_channels[self.id] = handler
+        await interaction.response.send_message(f"Successfully switched personality from {old.__name__} to {self.listening_channels[self.id].__name__}", ephemeral=True)
 class Listen(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -95,32 +122,41 @@ class Listen(commands.Cog):
 
     @discord.app_commands.command(name="switch", description="Switches the personality of Kaelum from normal to annoying, or vice versa in specific channels.")
     async def switch(self, interaction: discord.Interaction):
-        view = ChannelSelectView(self.listening_channels)
-        await interaction.response.send_message(view=view, ephemeral=True)
+        try:
+            view = ChannelSelectView(self.listening_channels)
+            await interaction.response.send_message(view=view, ephemeral=True)
+        except discord.errors.NotFound:
+            await interaction.followup.send("Slash command expired. Please try again.", ephemeral=True)
 
     @discord.app_commands.command(name="listen", description="Begins listening in the current channel.")
     async def listen(self, interaction: discord.Interaction):
-        if not getattr(interaction.user.guild_permissions, "manage_channels", False):
-            await interaction.response.send_message("You need Manage Channels to do that.", ephemeral=True)
-            return
-        channel_id = interaction.channel.id
-        if channel_id in self.listening_channels:
-            await interaction.response.send_message("Already listening in current channel!", ephemeral=True)
-        else:
-            self.listening_channels[channel_id] = generate_response
-            await interaction.response.send_message(f"Began listening in #{interaction.channel.name}.", ephemeral=True)
+        try:
+            if not getattr(interaction.user.guild_permissions, "manage_channels", False):
+                await interaction.response.send_message("You need Manage Channels to do that.", ephemeral=True)
+                return
+            channel_id = interaction.channel.id
+            if channel_id in self.listening_channels:
+                await interaction.response.send_message("Already listening in current channel!", ephemeral=True)
+            else:
+                self.listening_channels[channel_id] = generate_response
+                await interaction.response.send_message(f"Began listening in #{interaction.channel.name}.", ephemeral=True)
+        except discord.errors.NotFound:
+            await interaction.followup.send("Slash command expired. Please try again.", ephemeral=True)
 
     @discord.app_commands.command(name="purge", description="Stops listening in the current channel.")
     async def purge(self, interaction: discord.Interaction):
-        if not getattr(interaction.user.guild_permissions, "manage_channels", False):
-            await interaction.response.send_message("You need Manage Channels to do that.", ephemeral=True)
-            return
-        channel_id = interaction.channel.id
-        if channel_id not in self.listening_channels:
-            await interaction.response.send_message("Not already listening in current channel!", ephemeral=True)
-        else:
-            del self.listening_channels[channel_id]
-            await interaction.response.send_message(f"Stopped listening in #{interaction.channel.name}.", ephemeral=True)
+        try:
+            if not getattr(interaction.user.guild_permissions, "manage_channels", False):
+                await interaction.response.send_message("You need Manage Channels to do that.", ephemeral=True)
+                return
+            channel_id = interaction.channel.id
+            if channel_id not in self.listening_channels:
+                await interaction.response.send_message("Not already listening in current channel!", ephemeral=True)
+            else:
+                del self.listening_channels[channel_id]
+                await interaction.response.send_message(f"Stopped listening in #{interaction.channel.name}.", ephemeral=True)
+        except discord.errors.NotFound:
+            await interaction.followup.send("Slash command expired. Please try again.", ephemeral=True)
 
 
 async def setup(client):
