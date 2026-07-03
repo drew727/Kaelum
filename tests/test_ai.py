@@ -5,7 +5,7 @@ import sys
 import types
 import unittest
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 
 class FakeAsyncFile:
@@ -196,6 +196,36 @@ class AiModuleTests(unittest.IsolatedAsyncioTestCase):
             json.loads(self.fake_aiofiles.storage[self.module.file_path])["summary"],
             "updated memory",
         )
+
+    async def test_membrane_generate_response_falls_back_when_decision_is_empty(self):
+        self.module.client = SimpleNamespace(
+            chat=SimpleNamespace(
+                completions=SimpleNamespace(
+                    create=AsyncMock(
+                        side_effect=[
+                            groq_response(""),
+                            groq_response("topic"),
+                            groq_response("fallback reply"),
+                        ]
+                    )
+                )
+            )
+        )
+        self.module.gemini_client = SimpleNamespace(
+            aio=SimpleNamespace(
+                models=SimpleNamespace(
+                    generate_content=AsyncMock(side_effect=Exception("gemini down"))
+                )
+            )
+        )
+        self.module.membrane_client = SimpleNamespace(
+            ingest_event=Mock(),
+            retrieve=Mock(return_value=[]),
+        )
+
+        result = await self.module.membrane_generate_response("alice: hi", "alice: hi")
+
+        self.assertEqual(result, "fallback reply")
 
     async def test_annoying_response_uses_gemini_when_available(self):
         self.module.client = SimpleNamespace(

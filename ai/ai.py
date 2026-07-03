@@ -8,7 +8,7 @@ import random
 from openai import AsyncOpenAI
 from google import genai
 from google.genai import types
-from .system_instructions import filter_prompt, groq_sysins, gemini_sysins, annoying_sysins, summary_sysins, san_diego_sysins
+from .system_instructions import filter_prompt, groq_sysins, gemini_sysins, annoying_sysins, summary_sysins, san_diego_sysins, depressed_sysins
 from dotenv import load_dotenv
 from membrane import MembraneClient, Sensitivity, TrustContext, MemoryType
 import sys
@@ -85,8 +85,12 @@ async def membrane_generate_response(memory_context, immediate_context, personal
         except Exception as e:
             continue
     error = "All Models Hit Rate Limits"
-    print(can_go)
-    if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
+    decision_text = ""
+    if can_go and can_go.choices:
+        decision_text = (can_go.choices[0].message.content or "").strip()
+
+    should_respond = not decision_text or 'Y' in decision_text.upper()
+    if can_go and should_respond:
         #generate query
         query = None
         for m in groq_queue:
@@ -169,7 +173,7 @@ async def generate_response(memory_context, immediate_context, personality="norm
     async with aiofiles.open(file_path, mode='r') as f:
         contents = await f.read()
         metadata = json.loads(contents)
-    memory = metadata["normal_summary"]
+    memory = metadata.get("normal_summary") or metadata.get("summary") or ""
     #handle metadata for Kaelum
     for m in groq_queue:
         can_go = None
@@ -209,6 +213,7 @@ Update Kaelum's memory summary.
             print(memory)
             #save new memory
             metadata["normal_summary"] = memory
+            metadata["summary"] = memory
             async with aiofiles.open(file_path, mode='w') as f:
                 json_string = json.dumps(metadata, indent=4)
                 await f.write(json_string)
@@ -317,7 +322,7 @@ async def san_diego_response(memory_context, immediate_context, personality="nor
     async with aiofiles.open(file_path, mode='r') as f:
         contents = await f.read()
         metadata = json.loads(contents)
-    memory = metadata["san_diego_summary"]
+    memory = metadata.get("san_diego_summary") or metadata.get("summary") or ""
     #handle metadata for Kaelum
     for m in groq_queue:
         can_go = None
@@ -357,6 +362,7 @@ Update Kaelum's memory summary.
             print(memory)
             #save new memory
             metadata["san_diego_summary"] = memory
+            metadata["summary"] = memory
             async with aiofiles.open(file_path, mode='w') as f:
                 json_string = json.dumps(metadata, indent=4)
                 await f.write(json_string)
@@ -390,6 +396,110 @@ Update Kaelum's memory summary.
                         model= m,
                         messages=[
                             {"role": "system", "content": san_diego_sysins},
+                            {"role": "user", "content": f"""
+Conversation summary:
+{memory}
+
+Recent messages:
+{immediate_context}
+
+What would Kaelum say next?
+"""}
+                        ],
+                        temperature=1.5,
+                        stop=["@everyone", "nigg"]
+                    )
+                    response = final_output.choices[0].message.content.strip()
+                    groq_queue.pop(groq_queue.index(m))
+                    groq_queue.insert(0, m)
+
+                    return response
+                except Exception as e:
+                    error = str(e)
+                    continue
+            return f"MODEL ERROR: {error}"
+    else:
+        return
+    return None
+
+async def depressed_response(memory_context, immediate_context, personality="normal"):
+    async with aiofiles.open(file_path, mode='r') as f:
+        contents = await f.read()
+        metadata = json.loads(contents)
+    memory = metadata.get("depressed_summary") or metadata.get("summary") or ""
+    #handle metadata for Kaelum
+    for m in groq_queue:
+        can_go = None
+        try:
+            #decide whether kaleum responds
+            can_go = await client.chat.completions.create(
+                model=m,
+                messages=[
+                    {"role": "system", "content": filter_prompt},
+                    {"role": "user", "content": f"""
+Previous memory:
+{memory}
+
+New messages:
+{memory_context}
+
+Should Kaelum respond?
+"""}
+                ],
+                 temperature=0.1,
+                 max_tokens=3
+            )
+            #handle memory and recursive summarization, always update his memory even if he doesn't respond
+            summary = await client.chat.completions.create(model=m, messages=[
+                {"role": "system", "content": summary_sysins},
+                {"role": "user", "content": f"""
+Previous memory:
+{memory}
+
+New messages:
+{memory_context}
+
+Update Kaelum's memory summary.
+"""}],
+                    temperature=1.5)
+            memory = summary.choices[0].message.content.strip()
+            print(memory)
+            #save new memory
+            metadata["depressed_summary"] = memory
+            metadata["summary"] = memory
+            async with aiofiles.open(file_path, mode='w') as f:
+                json_string = json.dumps(metadata, indent=4)
+                await f.write(json_string)
+            if can_go != None:
+                groq_queue.pop(groq_queue.index(m))
+                groq_queue.insert(0, m)
+                break
+        except Exception as e:
+            continue
+    error = "All Models Hit Rate Limits"
+    if can_go and 'Y' in can_go.choices[0].message.content.strip().upper():
+        try:
+            for m in gemini_queue:
+                try:
+                    response = await gemini_client.aio.models.generate_content(
+                        model=m,
+                        contents=f"context: {memory_context} \nKaelum: ",
+                        config=norm_config,
+                    )
+                    gemini_queue.pop(gemini_queue.index(m))
+                    gemini_queue.insert(0, m)
+                    return response.text
+                except Exception as e:
+                    error = str(e)
+                    continue
+            raise Exception("All Gemini models failed")
+        except Exception as e:
+            for m in groq_queue:
+                try:
+                    final_output = await client.chat.completions.create(
+                        model= m,
+                        messages=[
+                            {"role": "system", "content": depressed_sysins},
                             {"role": "user", "content": f"""
 Conversation summary:
 {memory}

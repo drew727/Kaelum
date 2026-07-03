@@ -12,7 +12,7 @@ import discord
 from discord.ext import commands
 import discord.ui
 from discord.ui import ChannelSelect, View
-from ai.ai import generate_response, annoying_response, san_diego_response, membrane_generate_response  # import ai logic
+from ai.ai import generate_response, annoying_response, san_diego_response, depressed_response, membrane_generate_response  # import ai logic
 from cogs.constants import admins
 
 class ChannelSelectView(discord.ui.View):
@@ -55,6 +55,7 @@ class PersonalitySelectView(discord.ui.View):
             discord.SelectOption(label="Normal", value="normal"),
             discord.SelectOption(label="Annoying", value="annoying"),
             discord.SelectOption(label="San Diego", value="san diego"),
+            discord.SelectOption(label="Depressed", value="depressed"),
             discord.SelectOption(label="Membrane", value="membrane"),
         ]
     )
@@ -64,6 +65,7 @@ class PersonalitySelectView(discord.ui.View):
             "normal": generate_response,
             "annoying": annoying_response,
             "san diego": san_diego_response,
+            "depressed": depressed_response,
             "membrane": membrane_generate_response
         }
         handler = choices[select.values[0]]
@@ -133,7 +135,7 @@ class Listen(commands.Cog):
     @discord.app_commands.command(name="listen", description="Begins listening in the current channel.")
     async def listen(self, interaction: discord.Interaction):
         try:
-            if not getattr(interaction.user.guild_permissions, "manage_channels", False):
+            if (not getattr(interaction.user.guild_permissions, "manage_channels", False)) and interaction.user.id not in self.admins:
                 await interaction.response.send_message("You need Manage Channels to do that.", ephemeral=True)
                 return
             channel_id = interaction.channel.id
@@ -148,7 +150,7 @@ class Listen(commands.Cog):
     @discord.app_commands.command(name="purge", description="Stops listening in the current channel.")
     async def purge(self, interaction: discord.Interaction):
         try:
-            if not getattr(interaction.user.guild_permissions, "manage_channels", False):
+            if (not getattr(interaction.user.guild_permissions, "manage_channels", False)) and interaction.user.id not in self.admins:
                 await interaction.response.send_message("You need Manage Channels to do that.", ephemeral=True)
                 return
             channel_id = interaction.channel.id
