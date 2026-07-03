@@ -12,7 +12,7 @@ import discord
 from discord.ext import commands
 import discord.ui
 from discord.ui import ChannelSelect, View
-from ai.ai import generate_response, annoying_response, san_diego_response  # import ai logic
+from ai.ai import generate_response, annoying_response, san_diego_response, membrane_generate_response  # import ai logic
 from cogs.constants import admins
 
 class ChannelSelectView(discord.ui.View):
@@ -20,7 +20,7 @@ class ChannelSelectView(discord.ui.View):
         super().__init__(timeout=60)
         self.listening_channels = listening_channels
         self.admins = admins
-        
+
     @discord.ui.select(
         cls=discord.ui.ChannelSelect,
         placeholder="Select a channel...",
@@ -55,6 +55,7 @@ class PersonalitySelectView(discord.ui.View):
             discord.SelectOption(label="Normal", value="normal"),
             discord.SelectOption(label="Annoying", value="annoying"),
             discord.SelectOption(label="San Diego", value="san diego"),
+            discord.SelectOption(label="Membrane", value="membrane"),
         ]
     )
     async def select_personality(self, interaction, select):
@@ -63,6 +64,7 @@ class PersonalitySelectView(discord.ui.View):
             "normal": generate_response,
             "annoying": annoying_response,
             "san diego": san_diego_response,
+            "membrane": membrane_generate_response
         }
         handler = choices[select.values[0]]
         self.listening_channels[self.id] = handler
