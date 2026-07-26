@@ -145,7 +145,7 @@ class Listen(commands.Cog):
                 self.listening_channels[channel_id] = generate_response
                 await interaction.response.send_message(f"Began listening in #{interaction.channel.name}.", ephemeral=True)
         except discord.errors.NotFound:
-            await interaction.followup.send("Slash command expired. Please try again.", ephemeral=True)
+            await interaction.followup.send("Slash command expired or bot restarted. Please try again.", ephemeral=True)
 
     @discord.app_commands.command(name="purge", description="Stops listening in the current channel.")
     async def purge(self, interaction: discord.Interaction):
