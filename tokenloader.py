@@ -10,6 +10,7 @@ class TokenStore():
     self.current_token = self.tokens[0]
 
   def next_token(self):
+    self.tokens.append(self.current_token)
     self.tokens.remove(self.current_token)
     self.current_token = self.tokens[0]
     return self.current_token
